@@ -59,10 +59,6 @@ roi = pl / volume
 dp = retornos.std()
 
 erro = 1.96 / np.sqrt(volume)
-robustez = roi / dp if dp != 0 else 0
-
-Celeste = roi / (dp ** 2) if dp != 0 else 0
-stake = Celeste * 0.25
 
 equity = dados_plot.cumsum()
 
@@ -80,9 +76,11 @@ risk_ruin = np.exp(-2 * roi * banca / (dp ** 2)) if dp != 0 else 1
 # MÉTRICAS AVANÇADAS
 # ===============================
 
-Robustez = roi / dp if dp != 0 else 0
-
 expectancy = retornos.mean()
+
+sharpe = roi / dp if dp != 0 else 0
+
+robustez = expectancy / dp if dp != 0 else 0
 
 lucros = retornos[retornos > 0].sum()
 perdas = abs(retornos[retornos < 0].sum())
@@ -95,8 +93,11 @@ prob_5_losses = (1 - winrate) ** 5
 
 ulcer = np.sqrt(np.mean(drawdown ** 2))
 
+Celeste = roi / (dp ** 2) if dp != 0 else 0
+stake = Celeste * 0.25
+
 score = (
-    Robustez * 30 +
+    sharpe * 30 +
     profit_factor * 20 +
     expectancy * 30 +
     (1 - risk_ruin) * 20
@@ -117,7 +118,7 @@ c1, c2, c3, c4, c5 = st.columns(5)
 c1.metric("ROI", f"{roi*100:.2f}%")
 c2.metric("Volume", volume)
 c3.metric("Drawdown", f"{max_dd:.2f}")
-c4.metric("Robustez", f"{robustez:.2f}")
+c4.metric("Sharpe", f"{sharpe:.2f}")
 c5.metric("Stake Ideal", f"{stake*100:.2f}%")
 
 # ===============================
@@ -184,7 +185,8 @@ with col1:
     st.markdown(f"**Desvio padrão:** <span style='color:{cor_dp}'>{dp:.2f}</span>", unsafe_allow_html=True)
     st.markdown(f"**Intervalo confiança:** <span style='color:{cor_ic}'>{erro:.2f}</span>", unsafe_allow_html=True)
 
-    st.markdown(f"**Robustez:** {Robustez:.2f}")
+    st.markdown(f"**Sharpe:** {sharpe:.2f}")
+    st.markdown(f"**Robustez:** {robustez:.2f}")
     st.markdown(f"**Expectância:** {expectancy:.2f}")
     st.markdown(f"**Profit Factor:** {profit_factor:.2f}")
     st.markdown(f"**Ulcer Index:** {ulcer:.2f}")
@@ -199,13 +201,10 @@ with col1:
 # ===============================
 # DIAGNÓSTICO
 # ===============================
+
 with col2:
 
     st.subheader("🛡 Diagnóstico")
-
-    # =========================
-    # AMOSTRA
-    # =========================
 
     if erro < 0.05:
         st.success("Amostra estatística forte")
@@ -214,18 +213,10 @@ with col2:
     else:
         st.warning("Amostra pequena")
 
-    # =========================
-    # DRAWDOWN
-    # =========================
-
     if max_dd > -0.25:
         st.success("Drawdown saudável")
     else:
         st.warning("Drawdown elevado")
-
-    # =========================
-    # SHARPE
-    # =========================
 
     if sharpe > 0.6:
         st.success("Sharpe excelente — vantagem forte")
@@ -234,20 +225,12 @@ with col2:
     else:
         st.warning("Sharpe baixo")
 
-    # =========================
-    # PROFIT FACTOR
-    # =========================
-
     if profit_factor > 1.7:
         st.success("Profit Factor excelente")
     elif profit_factor > 1.3:
         st.info("Profit Factor saudável")
     else:
         st.warning("Profit Factor baixo")
-
-    # =========================
-    # ULCER INDEX (TRADING ESPORTIVO)
-    # =========================
 
     if ulcer < 3:
         st.success("Ulcer baixo — curva muito saudável")
@@ -258,10 +241,6 @@ with col2:
     else:
         st.error("Ulcer alto — sistema agressivo")
 
-    # =========================
-    # SCORE DO MÉTODO
-    # =========================
-
     if score > 70:
         st.success("Score alto — método profissional")
     elif score > 40:
@@ -269,16 +248,6 @@ with col2:
     else:
         st.error("Score baixo — vantagem fraca")
 
-    # =========================
-    # ROBUSTEZ
-    # =========================
-
-    if robustez < 0.2:
-        st.warning("Robustez baixa — stake conservadora")
-    elif robustez < 0.4:
-        st.info("Robustez moderada")
-    else:
-        st.success("Robustez forte")
 # ===============================
 # GAUGE RISCO DE RUÍNA
 # ===============================
@@ -289,15 +258,9 @@ fig = go.Figure(go.Indicator(
     mode="gauge+number",
     value=round(risk_ruin*100, 2),
 
-    number={
-        'suffix': "%",
-        'valueformat': ".2f"
-    },
+    number={'suffix': "%",'valueformat': ".2f"},
 
-    title={
-        'text': "Probabilidade (%)",
-        'font': {'size': 30}
-    },
+    title={'text': "Probabilidade (%)",'font': {'size': 30}},
 
     gauge={
         'axis': {'range': [0, 100]},
@@ -348,11 +311,11 @@ st.plotly_chart(fig, use_container_width=True)
 
 st.subheader("🚦 Semáforo do Método")
 
-if Robustez > 0.5 and profit_factor > 1.5 and risk_ruin < 0.05:
+if sharpe > 0.5 and profit_factor > 1.5 and risk_ruin < 0.05:
 
     st.success("🟢 MÉTODO PROFISSIONAL")
 
-elif Robustez > 0.25 and profit_factor > 1.2:
+elif sharpe > 0.25 and profit_factor > 1.2:
 
     st.warning("🟡 MÉTODO OPERÁVEL")
 
