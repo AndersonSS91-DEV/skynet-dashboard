@@ -242,11 +242,11 @@ with col2:
         st.error("Ulcer Alto — Sistema Agressivo")
 
     if score > 70:
-        st.success("Score alto — método profissional")
+        st.success("Score Alto — Método Profissional")
     elif score > 40:
-        st.info("Score médio — método operável")
+        st.info("Score Médio — Método Operável")
     else:
-        st.error("Score baixo — vantagem fraca")
+        st.error("Score Baixo — Vantagem Fraca")
 
 # ===============================
 # GAUGE RISCO DE RUÍNA
