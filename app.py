@@ -3,7 +3,10 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 
-st.set_page_config(layout="wide")
+st.set_page_config(
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
 # ===============================
 # CARREGAR DADOS
@@ -17,10 +20,10 @@ retornos = df["ENTRADAS"]
 # SELETOR DE TRADES
 # ===============================
 
-janela = st.radio(
-    "Trades analisados",
-    [100, 500, 1000],
-    horizontal=True
+janela = st.segmented_control(
+"Amostras Analisadas",
+options=[100,500,1000],
+default=500
 )
 
 dados_plot = retornos.tail(janela)
@@ -199,7 +202,7 @@ resultados = []
 
 for i in range(simulacoes):
 
-    sim = np.random.choice(retornos, size=trades, replace=True)
+    sim = np.random.choice(dados_plot,size=trades,replace=True)
     resultados.append(sim.cumsum()[-1])
 
 fig = go.Figure()
