@@ -21,6 +21,19 @@ arquivo = st.sidebar.file_uploader(
 )
 
 # ===============================
+# CARREGAR DADOS
+# ===============================
+
+import os
+
+st.sidebar.subheader("📂 Dados")
+
+arquivo = st.sidebar.file_uploader(
+    "Carregar planilha de trades",
+    type=["xlsx", "csv"]
+)
+
+# ===============================
 # CARREGAMENTO HÍBRIDO
 # ===============================
 
@@ -44,18 +57,30 @@ else:
 
     else:
 
-        st.warning("Nenhum arquivo encontrado")
+        st.info("Carregue uma planilha para iniciar a análise")
         st.stop()
 
-else:
-    st.info("Carregue a Planilha para Iniciar a Análise.")
-    st.stop()
+# ===============================
+# NORMALIZAR COLUNAS
+# ===============================
+
+df.columns = df.columns.str.strip().str.upper()
+
+# ===============================
+# VALIDAR COLUNA NECESSÁRIA
+# ===============================
 
 if "ENTRADAS" not in df.columns:
     st.error("Coluna ENTRADAS não encontrada na planilha")
     st.stop()
 
-retornos = pd.to_numeric(df["ENTRADAS"], errors="coerce").dropna()
+# ===============================
+# CONVERTER PARA NUMÉRICO
+# ===============================
+
+df["ENTRADAS"] = pd.to_numeric(df["ENTRADAS"], errors="coerce")
+
+retornos = df["ENTRADAS"].dropna()
 
 # ===============================
 # SELETOR DE AMOSTRA
