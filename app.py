@@ -50,6 +50,8 @@ dados_plot = retornos.tail(janela)
 # ===============================
 # CÁLCULOS BÁSICOS
 # ===============================
+df["ENTRADAS"] = pd.to_numeric(df["ENTRADAS"], errors="coerce")
+df["ODD"] = pd.to_numeric(df["ODD"], errors="coerce")
 odd_media = df["ODD"].mean()
 
 pl = retornos.sum()
