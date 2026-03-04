@@ -125,7 +125,6 @@ c3.metric("Drawdown", f"{max_dd:.2f}")
 c4.metric("Robustez", f"{robustez:.2f}")
 c5.metric("Stake Ideal", f"{stake*100:.2f}%")
 
-st.markdown("---")
 # ===============================
 # GRÁFICOS
 # ===============================
@@ -168,7 +167,6 @@ with g2:
 
     st.plotly_chart(fig2, use_container_width=True)
     
-    st.markdown("---")
 
 # ===============================
 # ESTATÍSTICAS
@@ -320,6 +318,7 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
+st.markdown("---")
 # ===============================
 # SEMÁFORO
 # ===============================
