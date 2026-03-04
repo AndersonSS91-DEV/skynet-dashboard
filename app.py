@@ -176,16 +176,23 @@ st.subheader("🎯 Risco de Ruína")
 
 fig = go.Figure(go.Indicator(
     mode="gauge+number",
-    value=round(risk_ruin * 100, 2),
-    number={'suffix': "%", 'valueformat': ".2f"},
+    value=round(risk_ruin*100,2),
+
+    number={
+        'suffix': "%",
+        'valueformat': ".2f",
+        'font': {'size': 40}   # 👈 controla o tamanho do número
+    },
+
     title={'text': "Probabilidade (%)"},
+
     gauge={
-        'axis': {'range': [0, 100]},
+        'axis': {'range': [0,100]},
         'steps': [
-            {'range': [0, 3], 'color': '#10b981'},
-            {'range': [3, 10], 'color': '#facc15'},
-            {'range': [10, 25], 'color': '#fb923c'},
-            {'range': [25, 100], 'color': '#ef4444'}
+            {'range':[0,3],'color':'#10b981'},
+            {'range':[3,10],'color':'#facc15'},
+            {'range':[10,25],'color':'#fb923c'},
+            {'range':[25,100],'color':'#ef4444'}
         ]
     }
 ))
