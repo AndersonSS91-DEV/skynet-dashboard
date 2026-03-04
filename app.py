@@ -263,7 +263,7 @@ with col2:
     else:
         st.success("Robustez Forte")
                 
-st.divider("---")
+st.divider()
 
 # ===============================
 # GAUGE RISCO DE RUÍNA
