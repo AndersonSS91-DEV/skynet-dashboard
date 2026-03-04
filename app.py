@@ -20,10 +20,13 @@ retornos = df["ENTRADAS"]
 # SELETOR DE TRADES
 # ===============================
 
-janela = st.segmented_control(
-"Amostras Analisadas",
-options=[100,500,1000],
-default=500
+st.subheader("Curva da banca")
+
+janela = st.radio(
+    "Amostras Analisados",
+    [100,500,1000],
+    index=1,
+    horizontal=True
 )
 
 dados_plot = retornos.tail(janela)
