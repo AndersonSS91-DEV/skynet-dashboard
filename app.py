@@ -207,23 +207,23 @@ with col2:
     st.subheader("🛡 Diagnóstico")
 
     if erro < 0.05:
-        st.success("Amostra estatística forte")
+        st.success("Amostra Estatística Forte")
     elif erro < 0.1:
-        st.info("Amostra aceitável")
+        st.info("Amostra Aceitável")
     else:
-        st.warning("Amostra pequena")
+        st.warning("Amostra Pequena")
 
     if max_dd > -0.25:
-        st.success("Drawdown saudável")
+        st.success("Drawdown Saudável")
     else:
-        st.warning("Drawdown elevado")
+        st.warning("Drawdown Elevado")
 
     if sharpe > 0.6:
-        st.success("Sharpe excelente — vantagem forte")
+        st.success("Sharpe Excelente — vantagem forte")
     elif sharpe > 0.3:
-        st.info("Sharpe positivo")
+        st.info("Sharpe Positivo")
     else:
-        st.warning("Sharpe baixo")
+        st.warning("Sharpe Baixo")
 
     if profit_factor > 1.7:
         st.success("Profit Factor excelente")
@@ -233,13 +233,13 @@ with col2:
         st.warning("Profit Factor baixo")
 
     if ulcer < 3:
-        st.success("Ulcer baixo — curva muito saudável")
+        st.success("Ulcer Baixo — Curva Muito Saudável")
     elif ulcer < 5:
-        st.info("Ulcer controlado — risco psicológico aceitável")
+        st.info("Ulcer Controlado — Risco Aceitável")
     elif ulcer < 8:
-        st.warning("Ulcer moderado — curva pesada")
+        st.warning("Ulcer Moderado — Curva pesada")
     else:
-        st.error("Ulcer alto — sistema agressivo")
+        st.error("Ulcer Alto — Sistema Agressivo")
 
     if score > 70:
         st.success("Score alto — método profissional")
