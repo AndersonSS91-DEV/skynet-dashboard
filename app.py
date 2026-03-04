@@ -199,7 +199,6 @@ with col1:
 # ===============================
 # DIAGNÓSTICO
 # ===============================
-
 with col2:
 
     st.subheader("🛡 Diagnóstico")
@@ -280,7 +279,6 @@ with col2:
         st.info("Robustez moderada")
     else:
         st.success("Robustez forte")
-
 # ===============================
 # GAUGE RISCO DE RUÍNA
 # ===============================
