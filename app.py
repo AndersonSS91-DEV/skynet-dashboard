@@ -8,6 +8,18 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
+# ===============================
+# CARREGAR DADOS
+# ===============================
+
+import os
+
+st.sidebar.subheader("📂 Dados")
+
+arquivo = st.sidebar.file_uploader(
+    "Carregar planilha de trades",
+    type=["xlsx", "csv"]
+)
 
 # ===============================
 # CARREGAMENTO HÍBRIDO
