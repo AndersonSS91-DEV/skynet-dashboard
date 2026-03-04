@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
+import os
 
 st.set_page_config(
     layout="wide",
@@ -19,12 +20,32 @@ arquivo = st.sidebar.file_uploader(
     type=["xlsx", "csv"]
 )
 
+# ===============================
+# CARREGAMENTO HÍBRIDO
+# ===============================
+
 if arquivo is not None:
 
     if arquivo.name.endswith(".csv"):
         df = pd.read_csv(arquivo)
     else:
         df = pd.read_excel(arquivo)
+
+    st.sidebar.success("Arquivo carregado")
+
+else:
+
+    caminho_padrao = "data/trades_padrao.xlsx"
+
+    if os.path.exists(caminho_padrao):
+
+        df = pd.read_excel(caminho_padrao)
+        st.sidebar.info("Usando base padrão")
+
+    else:
+
+        st.warning("Nenhum arquivo encontrado")
+        st.stop()
 
 else:
     st.info("Carregue a Planilha para Iniciar a Análise.")
@@ -131,7 +152,7 @@ c1.metric("ROI", f"{roi*100:.2f}%")
 c2.metric("Volume", volume)
 c3.metric("Drawdown", f"{max_dd:.2f}")
 c4.metric("Robustez", f"{robustez:.2f}")
-c5.metric("Stake Ideal", f"{stake*100:.2f}%")
+c5.metric("Stake Celeste", f"{stake*100:.2f}%")
 c6.metric("P/L", f"{pl:.2f}")
 c7.metric("Odd Média", f"{odd_media:.2f}")
 
