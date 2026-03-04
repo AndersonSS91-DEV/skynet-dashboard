@@ -180,11 +180,13 @@ fig = go.Figure(go.Indicator(
 
     number={
         'suffix': "%",
-        'valueformat': ".2f",
-        'font': {'size': 40}   # 👈 controla o tamanho do número
+        'valueformat': ".2f"
     },
 
-    title={'text': "Probabilidade (%)"},
+    title={
+        'text': "Probabilidade (%)",
+        'font': {'size': 14}
+    },
 
     gauge={
         'axis': {'range': [0,100]},
