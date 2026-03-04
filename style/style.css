@@ -1,1 +1,27 @@
+/* background */
+.stApp{
+    background: linear-gradient(135deg,#0f172a,#020617);
+    color:white;
+}
 
+/* cards */
+.card{
+    background: rgba(30,41,59,0.8);
+    padding:25px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.05);
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* metric number */
+.metric{
+    font-size:34px;
+    font-weight:700;
+}
+
+/* title */
+.title{
+    font-size:28px;
+    font-weight:600;
+    margin-bottom:20px;
+}
