@@ -80,7 +80,7 @@ risk_ruin = np.exp(-2 * roi * banca / (dp ** 2)) if dp != 0 else 1
 # MÉTRICAS AVANÇADAS
 # ===============================
 
-sharpe = roi / dp if dp != 0 else 0
+Robustez = roi / dp if dp != 0 else 0
 
 expectancy = retornos.mean()
 
@@ -96,7 +96,7 @@ prob_5_losses = (1 - winrate) ** 5
 ulcer = np.sqrt(np.mean(drawdown ** 2))
 
 score = (
-    sharpe * 30 +
+    Robustez * 30 +
     profit_factor * 20 +
     expectancy * 30 +
     (1 - risk_ruin) * 20
@@ -184,7 +184,7 @@ with col1:
     st.markdown(f"**Desvio padrão:** <span style='color:{cor_dp}'>{dp:.2f}</span>", unsafe_allow_html=True)
     st.markdown(f"**Intervalo confiança:** <span style='color:{cor_ic}'>{erro:.2f}</span>", unsafe_allow_html=True)
 
-    st.markdown(f"**Sharpe:** {sharpe:.2f}")
+    st.markdown(f"**Robustez:** {Robustez:.2f}")
     st.markdown(f"**Expectância:** {expectancy:.2f}")
     st.markdown(f"**Profit Factor:** {profit_factor:.2f}")
     st.markdown(f"**Ulcer Index:** {ulcer:.2f}")
@@ -216,12 +216,12 @@ with col2:
     else:
         st.warning("Drawdown elevado")
 
-    if sharpe > 0.6:
-        st.success("Sharpe excelente — vantagem forte")
-    elif sharpe > 0.3:
-        st.info("Sharpe positivo")
+    if Robustez > 0.6:
+        st.success("Robustez excelente — vantagem forte")
+    elif Robustez > 0.3:
+        st.info("Robustez positivo")
     else:
-        st.warning("Sharpe baixo")
+        st.warning("Robustez baixo")
 
     if profit_factor > 1.7:
         st.success("Profit Factor excelente")
@@ -306,11 +306,11 @@ st.plotly_chart(fig, use_container_width=True)
 
 st.subheader("🚦 Semáforo do Método")
 
-if sharpe > 0.5 and profit_factor > 1.5 and risk_ruin < 0.05:
+if Robustez > 0.5 and profit_factor > 1.5 and risk_ruin < 0.05:
 
     st.success("🟢 MÉTODO PROFISSIONAL")
 
-elif sharpe > 0.25 and profit_factor > 1.2:
+elif Robustez > 0.25 and profit_factor > 1.2:
 
     st.warning("🟡 MÉTODO OPERÁVEL")
 
