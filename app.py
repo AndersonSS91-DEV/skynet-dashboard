@@ -185,7 +185,7 @@ fig = go.Figure(go.Indicator(
 
     title={
         'text': "Probabilidade (%)",
-        'font': {'size': 20}
+        'font': {'size': 30}
     },
 
     gauge={
