@@ -204,6 +204,10 @@ with col2:
 
     st.subheader("🛡 Diagnóstico")
 
+    # =========================
+    # AMOSTRA
+    # =========================
+
     if erro < 0.05:
         st.success("Amostra estatística forte")
     elif erro < 0.1:
@@ -211,17 +215,29 @@ with col2:
     else:
         st.warning("Amostra pequena")
 
+    # =========================
+    # DRAWDOWN
+    # =========================
+
     if max_dd > -0.25:
         st.success("Drawdown saudável")
     else:
         st.warning("Drawdown elevado")
 
-    if Robustez > 0.6:
-        st.success("Robustez excelente — vantagem forte")
-    elif Robustez > 0.3:
-        st.info("Robustez positivo")
+    # =========================
+    # SHARPE
+    # =========================
+
+    if sharpe > 0.6:
+        st.success("Sharpe excelente — vantagem forte")
+    elif sharpe > 0.3:
+        st.info("Sharpe positivo")
     else:
-        st.warning("Robustez baixo")
+        st.warning("Sharpe baixo")
+
+    # =========================
+    # PROFIT FACTOR
+    # =========================
 
     if profit_factor > 1.7:
         st.success("Profit Factor excelente")
@@ -229,6 +245,34 @@ with col2:
         st.info("Profit Factor saudável")
     else:
         st.warning("Profit Factor baixo")
+
+    # =========================
+    # ULCER INDEX (TRADING ESPORTIVO)
+    # =========================
+
+    if ulcer < 3:
+        st.success("Ulcer baixo — curva muito saudável")
+    elif ulcer < 5:
+        st.info("Ulcer controlado — risco psicológico aceitável")
+    elif ulcer < 8:
+        st.warning("Ulcer moderado — curva pesada")
+    else:
+        st.error("Ulcer alto — sistema agressivo")
+
+    # =========================
+    # SCORE DO MÉTODO
+    # =========================
+
+    if score > 70:
+        st.success("Score alto — método profissional")
+    elif score > 40:
+        st.info("Score médio — método operável")
+    else:
+        st.error("Score baixo — vantagem fraca")
+
+    # =========================
+    # ROBUSTEZ
+    # =========================
 
     if robustez < 0.2:
         st.warning("Robustez baixa — stake conservadora")
