@@ -13,9 +13,9 @@ df = pd.read_excel("data/PADRAO_CALCULO.xlsx")
 
 retornos = df["ENTRADAS"]
 
-# ==================================
-# SELETOR DE JANELA DE TRADES
-# ==================================
+# ===============================
+# SELETOR DE TRADES
+# ===============================
 
 janela = st.radio(
     "Trades analisados",
@@ -25,16 +25,20 @@ janela = st.radio(
 
 dados_plot = retornos.tail(janela)
 
+# ===============================
+# CÁLCULOS
+# ===============================
+
 pl = retornos.sum()
 volume = len(retornos)
 
-roi = pl/volume
+roi = pl / volume
 dp = retornos.std()
 
-erro = 1.96/np.sqrt(volume)
-robustez = roi/dp
+erro = 1.96 / np.sqrt(volume)
+robustez = roi / dp
 
-Celeste = roi/(dp**2)
+Celeste = roi / (dp ** 2)
 stake = Celeste * 0.25
 
 equity = dados_plot.cumsum()
@@ -47,8 +51,7 @@ max_dd = drawdown.min()
 # ===============================
 
 banca = 0.5
-
-risk_ruin = np.exp(-2*roi*banca/(dp**2))
+risk_ruin = np.exp(-2 * roi * banca / (dp ** 2))
 
 # ===============================
 # TÍTULO
@@ -60,19 +63,19 @@ st.title("📊 Painel Executivo — Validação do Método")
 # CARDS
 # ===============================
 
-c1,c2,c3,c4,c5 = st.columns(5)
+c1, c2, c3, c4, c5 = st.columns(5)
 
-c1.metric("ROI",f"{roi*100:.2f}%")
-c2.metric("Volume",volume)
-c3.metric("Drawdown",f"{max_dd:.2f}")
-c4.metric("Robustez",f"{robustez:.2f}")
-c5.metric("Stake Ideal",f"{stake*100:.2f}%")
+c1.metric("ROI", f"{roi*100:.2f}%")
+c2.metric("Volume", volume)
+c3.metric("Drawdown", f"{max_dd:.2f}")
+c4.metric("Robustez", f"{robustez:.2f}")
+c5.metric("Stake Ideal", f"{stake*100:.2f}%")
 
 # ===============================
-# CURVA E DRAWDOWN
+# GRÁFICOS
 # ===============================
 
-g1,g2 = st.columns(2)
+g1, g2 = st.columns(2)
 
 with g1:
 
@@ -81,7 +84,7 @@ with g1:
     fig.add_trace(go.Scatter(
         y=equity,
         mode="lines",
-        line=dict(width=3,color="#10b981")
+        line=dict(width=3, color="#10b981")
     ))
 
     fig.update_layout(
@@ -90,7 +93,7 @@ with g1:
         height=350
     )
 
-    st.plotly_chart(fig,use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
 with g2:
 
@@ -108,35 +111,36 @@ with g2:
         height=350
     )
 
-    st.plotly_chart(fig2,use_container_width=True)
+    st.plotly_chart(fig2, use_container_width=True)
 
 # ===============================
-# ESTATÍSTICAS + DIAGNÓSTICO
+# ESTATÍSTICAS
 # ===============================
 
-col1,col2 = st.columns(2)
-
-with col1:
+col1, col2 = st.columns(2)
 
 with col1:
 
     st.subheader("📊 Estatísticas")
 
-    # cores
     cor_pl = "#10b981" if pl > 0 else "#ef4444"
     cor_roi = "#10b981" if roi > 0 else "#ef4444"
     cor_dp = "#10b981"
     cor_ic = "#10b981" if erro < 0.1 else "#f59e0b"
-    cor_Celeste = "#38bdf8"
+    cor_celeste = "#38bdf8"
     cor_ruina = "#ef4444" if risk_ruin > 0.25 else "#f59e0b" if risk_ruin > 0.10 else "#10b981"
 
     st.markdown(f"**PL:** <span style='color:{cor_pl}'>{pl:.2f}</span>", unsafe_allow_html=True)
     st.markdown(f"**ROI:** <span style='color:{cor_roi}'>{roi*100:.2f}%</span>", unsafe_allow_html=True)
     st.markdown(f"**Desvio padrão:** <span style='color:{cor_dp}'>{dp:.2f}</span>", unsafe_allow_html=True)
     st.markdown(f"**Intervalo confiança:** <span style='color:{cor_ic}'>{erro:.2f}</span>", unsafe_allow_html=True)
-    st.markdown(f"**Celeste:** <span style='color:{cor_Celeste}'>{Celeste*100:.2f}%</span>", unsafe_allow_html=True)
+    st.markdown(f"**Celeste:** <span style='color:{cor_celeste}'>{Celeste*100:.2f}%</span>", unsafe_allow_html=True)
     st.markdown(f"**Risco de ruína:** <span style='color:{cor_ruina}'>{risk_ruin*100:.2f}%</span>", unsafe_allow_html=True)
-    
+
+# ===============================
+# DIAGNÓSTICO
+# ===============================
+
 with col2:
 
     st.subheader("🛡 Diagnóstico")
@@ -153,10 +157,8 @@ with col2:
 
     if robustez < 0.2:
         st.warning("Robustez baixa — stake conservadora")
-
     elif robustez < 0.4:
         st.info("Robustez moderada")
-
     else:
         st.success("Robustez forte")
 
@@ -168,21 +170,21 @@ st.subheader("🎯 Risco de Ruína")
 
 fig = go.Figure(go.Indicator(
     mode="gauge+number",
-    value=round(risk_ruin*100,2),
+    value=round(risk_ruin * 100, 2),
     number={'suffix': "%", 'valueformat': ".2f"},
-    title={'text': "Risco de Ruína"},
+    title={'text': "Probabilidade (%)"},
     gauge={
-        'axis': {'range': [0,100]},
+        'axis': {'range': [0, 100]},
         'steps': [
-            {'range':[0,3],'color':'#10b981'},
-            {'range':[3,10],'color':'#facc15'},
-            {'range':[10,25],'color':'#fb923c'},
-            {'range':[25,100],'color':'#ef4444'}
+            {'range': [0, 3], 'color': '#10b981'},
+            {'range': [3, 10], 'color': '#facc15'},
+            {'range': [10, 25], 'color': '#fb923c'},
+            {'range': [25, 100], 'color': '#ef4444'}
         ]
     }
 ))
 
-st.plotly_chart(fig,use_container_width=True)
+st.plotly_chart(fig, use_container_width=True)
 
 # ===============================
 # MONTE CARLO
@@ -197,7 +199,7 @@ resultados = []
 
 for i in range(simulacoes):
 
-    sim = np.random.choice(retornos,size=trades,replace=True)
+    sim = np.random.choice(retornos, size=trades, replace=True)
     resultados.append(sim.cumsum()[-1])
 
 fig = go.Figure()
@@ -212,7 +214,7 @@ fig.update_layout(
     title="Distribuição de resultados simulados"
 )
 
-st.plotly_chart(fig,use_container_width=True)
+st.plotly_chart(fig, use_container_width=True)
 
 # ===============================
 # SEMÁFORO DO MÉTODO
