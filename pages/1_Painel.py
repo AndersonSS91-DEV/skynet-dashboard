@@ -22,8 +22,8 @@ dp = retornos.std()
 erro = 1.96/np.sqrt(volume)
 robustez = roi/dp
 
-kelly = roi/(dp**2)
-stake = kelly*0.25
+Celeste = roi/(dp**2)
+stake = Celeste*0.25
 
 equity = retornos.cumsum()
 
@@ -106,14 +106,22 @@ col1,col2 = st.columns(2)
 
 with col1:
 
-    st.subheader("📊 Estatísticas")
+st.subheader("📊 Estatísticas")
 
-    st.write("PL:",round(pl,2))
-    st.write("ROI:",f"{roi*100:.2f}%")
-    st.write("Desvio padrão:",round(dp,2))
-    st.write("Intervalo confiança:",round(erro,2))
-    st.write("Kelly:",f"{kelly*100:.2f}%")
-    st.write("Risco de ruína:",f"{risk_ruin*100:.2f}%")
+# cores
+cor_pl = "#10b981" if pl > 0 else "#ef4444"
+cor_roi = "#10b981" if roi > 0 else "#ef4444"
+cor_dp = "#10b981"
+cor_ic = "#10b981" if erro < 0.1 else "#f59e0b"
+cor_Celeste= "#38bdf8"
+cor_ruina = "#ef4444" if risk_ruin > 0.25 else "#f59e0b" if risk_ruin > 0.10 else "#10b981"
+
+st.markdown(f"**PL:** <span style='color:{cor_pl}'>{pl:.2f}</span>", unsafe_allow_html=True)
+st.markdown(f"**ROI:** <span style='color:{cor_roi}'>{roi*100:.2f}%</span>", unsafe_allow_html=True)
+st.markdown(f"**Desvio padrão:** <span style='color:{cor_dp}'>{dp:.2f}</span>", unsafe_allow_html=True)
+st.markdown(f"**Intervalo confiança:** <span style='color:{cor_ic}'>{erro:.2f}</span>", unsafe_allow_html=True)
+st.markdown(f"**Celeste:** <span style='color:{cor_Celeste}'>{Celeste*100:.2f}%</span>", unsafe_allow_html=True)
+st.markdown(f"**Risco de ruína:** <span style='color:{cor_ruina}'>{risk_ruin*100:.2f}%</span>", unsafe_allow_html=True)
 
 with col2:
 
@@ -146,15 +154,16 @@ st.subheader("🎯 Risco de Ruína")
 
 fig = go.Figure(go.Indicator(
     mode="gauge+number",
-    value=risk_ruin*100,
-    title={'text': "Probabilidade (%)"},
+    value=round(risk_ruin*100,2),
+    number={'suffix': "%", 'valueformat': ".2f"},
+    title={'text': "Risco de Ruína"},
     gauge={
         'axis': {'range': [0,100]},
         'steps': [
-            {'range':[0,3],'color':'green'},
-            {'range':[3,10],'color':'yellow'},
-            {'range':[10,25],'color':'orange'},
-            {'range':[25,100],'color':'red'}
+            {'range':[0,3],'color':'#10b981'},
+            {'range':[3,10],'color':'#facc15'},
+            {'range':[10,25],'color':'#fb923c'},
+            {'range':[25,100],'color':'#ef4444'}
         ]
     }
 ))
