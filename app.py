@@ -201,6 +201,9 @@ with col1:
 
     st.markdown(f"**Probabilidade de 5 reds seguidos:** {prob_5_losses*100:.2f}%")
     st.markdown(f"**Score do método:** {score:.2f}")
+    
+    
+    st.markdown("---")
 
 # ===============================
 # DIAGNÓSTICO
