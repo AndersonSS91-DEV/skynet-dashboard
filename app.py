@@ -263,7 +263,7 @@ with col2:
     else:
         st.success("Robustez Forte")
                 
-        st.markdown("---")
+st.divider("---")
 
 # ===============================
 # GAUGE RISCO DE RUÍNA
@@ -288,8 +288,6 @@ fig = go.Figure(go.Indicator(
 ))
 
 st.plotly_chart(fig, use_container_width=True)
-
-st.markdown("---")
 
 # ===============================
 # MONTE CARLO
@@ -320,7 +318,7 @@ fig.update_layout(
 )
 
 st.plotly_chart(fig, use_container_width=True)
-st.markdown("---")
+
 # ===============================
 # SEMÁFORO
 # ===============================
