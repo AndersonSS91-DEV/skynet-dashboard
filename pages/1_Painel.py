@@ -13,6 +13,18 @@ df = pd.read_excel("data/PADRAO_CALCULO.xlsx")
 
 retornos = df["ENTRADAS"]
 
+# ==================================
+# SELETOR DE JANELA DE TRADES
+# ==================================
+
+janela = st.radio(
+    "Trades analisados",
+    [100, 500, 1000],
+    horizontal=True
+)
+
+dados_plot = retornos.tail(janela)
+
 pl = retornos.sum()
 volume = len(retornos)
 
@@ -23,9 +35,9 @@ erro = 1.96/np.sqrt(volume)
 robustez = roi/dp
 
 Celeste = roi/(dp**2)
-stake = Celeste*0.25
+stake = Celeste * 0.25
 
-equity = retornos.cumsum()
+equity = dados_plot.cumsum()
 
 drawdown = equity - equity.cummax()
 max_dd = drawdown.min()
@@ -106,23 +118,25 @@ col1,col2 = st.columns(2)
 
 with col1:
 
-st.subheader("📊 Estatísticas")
+with col1:
 
-# cores
-cor_pl = "#10b981" if pl > 0 else "#ef4444"
-cor_roi = "#10b981" if roi > 0 else "#ef4444"
-cor_dp = "#10b981"
-cor_ic = "#10b981" if erro < 0.1 else "#f59e0b"
-cor_Celeste= "#38bdf8"
-cor_ruina = "#ef4444" if risk_ruin > 0.25 else "#f59e0b" if risk_ruin > 0.10 else "#10b981"
+    st.subheader("📊 Estatísticas")
 
-st.markdown(f"**PL:** <span style='color:{cor_pl}'>{pl:.2f}</span>", unsafe_allow_html=True)
-st.markdown(f"**ROI:** <span style='color:{cor_roi}'>{roi*100:.2f}%</span>", unsafe_allow_html=True)
-st.markdown(f"**Desvio padrão:** <span style='color:{cor_dp}'>{dp:.2f}</span>", unsafe_allow_html=True)
-st.markdown(f"**Intervalo confiança:** <span style='color:{cor_ic}'>{erro:.2f}</span>", unsafe_allow_html=True)
-st.markdown(f"**Celeste:** <span style='color:{cor_Celeste}'>{Celeste*100:.2f}%</span>", unsafe_allow_html=True)
-st.markdown(f"**Risco de ruína:** <span style='color:{cor_ruina}'>{risk_ruin*100:.2f}%</span>", unsafe_allow_html=True)
+    # cores
+    cor_pl = "#10b981" if pl > 0 else "#ef4444"
+    cor_roi = "#10b981" if roi > 0 else "#ef4444"
+    cor_dp = "#10b981"
+    cor_ic = "#10b981" if erro < 0.1 else "#f59e0b"
+    cor_Celeste = "#38bdf8"
+    cor_ruina = "#ef4444" if risk_ruin > 0.25 else "#f59e0b" if risk_ruin > 0.10 else "#10b981"
 
+    st.markdown(f"**PL:** <span style='color:{cor_pl}'>{pl:.2f}</span>", unsafe_allow_html=True)
+    st.markdown(f"**ROI:** <span style='color:{cor_roi}'>{roi*100:.2f}%</span>", unsafe_allow_html=True)
+    st.markdown(f"**Desvio padrão:** <span style='color:{cor_dp}'>{dp:.2f}</span>", unsafe_allow_html=True)
+    st.markdown(f"**Intervalo confiança:** <span style='color:{cor_ic}'>{erro:.2f}</span>", unsafe_allow_html=True)
+    st.markdown(f"**Celeste:** <span style='color:{cor_Celeste}'>{Celeste*100:.2f}%</span>", unsafe_allow_html=True)
+    st.markdown(f"**Risco de ruína:** <span style='color:{cor_ruina}'>{risk_ruin*100:.2f}%</span>", unsafe_allow_html=True)
+    
 with col2:
 
     st.subheader("🛡 Diagnóstico")
