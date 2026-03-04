@@ -50,6 +50,7 @@ dados_plot = retornos.tail(janela)
 # ===============================
 # CÁLCULOS BÁSICOS
 # ===============================
+odd_media = df["ODD"].mean()
 
 pl = retornos.sum()
 volume = len(retornos)
@@ -117,13 +118,15 @@ st.title("📊 Validação do Método")
 # CARDS
 # ===============================
 
-c1, c2, c3, c4, c5 = st.columns(5)
+c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
 
 c1.metric("ROI", f"{roi*100:.2f}%")
 c2.metric("Volume", volume)
 c3.metric("Drawdown", f"{max_dd:.2f}")
 c4.metric("Robustez", f"{robustez:.2f}")
 c5.metric("Stake Ideal", f"{stake*100:.2f}%")
+c6.metric("P/L", f"{pl:.2f}")
+c7.metric("Odd Média", f"{odd_media:.2f}")
 
 # ===============================
 # GRÁFICOS
