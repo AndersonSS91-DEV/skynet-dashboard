@@ -175,43 +175,104 @@ c7.metric("Odd Média", f"{odd_media:.2f}")
 
 g1, g2 = st.columns(2)
 
+# ===============================
+# CURVA DA BANCA (GLOW AZUL)
+# ===============================
+
 with g1:
 
     fig = go.Figure()
 
+    # glow externo
     fig.add_trace(go.Scatter(
         y=equity,
         mode="lines",
-        line=dict(width=3, color="#10b981")
+        line=dict(width=10, color="rgba(0,150,255,0.15)"),
+        hoverinfo="skip",
+        showlegend=False
+    ))
+
+    # glow médio
+    fig.add_trace(go.Scatter(
+        y=equity,
+        mode="lines",
+        line=dict(width=6, color="rgba(0,150,255,0.35)"),
+        hoverinfo="skip",
+        showlegend=False
+    ))
+
+    # linha principal
+    fig.add_trace(go.Scatter(
+        y=equity,
+        mode="lines",
+        line=dict(width=2, color="#38bdf8"),
+        name="Equity"
     ))
 
     fig.update_layout(
         template="plotly_dark",
         title="Curva da banca",
-        height=350
+        height=350,
+        margin=dict(l=20,r=20,t=40,b=20),
+        yaxis=dict(
+            range=[equity.min()*1.1, equity.max()*1.1],
+            showgrid=True,
+            gridcolor="rgba(255,255,255,0.1)"
+        ),
+        xaxis=dict(showgrid=False)
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+# ===============================
+# DRAWDOWN (GLOW VERMELHO)
+# ===============================
 
 with g2:
 
     fig2 = go.Figure()
 
+    # glow externo
     fig2.add_trace(go.Scatter(
         y=drawdown,
+        mode="lines",
+        line=dict(width=10, color="rgba(255,0,0,0.15)"),
+        hoverinfo="skip",
+        showlegend=False
+    ))
+
+    # glow médio
+    fig2.add_trace(go.Scatter(
+        y=drawdown,
+        mode="lines",
+        line=dict(width=6, color="rgba(255,0,0,0.35)"),
+        hoverinfo="skip",
+        showlegend=False
+    ))
+
+    # linha principal
+    fig2.add_trace(go.Scatter(
+        y=drawdown,
+        mode="lines",
+        line=dict(width=2, color="#ef4444"),
         fill="tozeroy",
-        line=dict(color="red")
+        name="Drawdown"
     ))
 
     fig2.update_layout(
         template="plotly_dark",
         title="Drawdown",
-        height=350
+        height=350,
+        margin=dict(l=20,r=20,t=40,b=20),
+        yaxis=dict(
+            range=[drawdown.min()*1.1, 0],
+            showgrid=True,
+            gridcolor="rgba(255,255,255,0.1)"
+        ),
+        xaxis=dict(showgrid=False)
     )
 
     st.plotly_chart(fig2, use_container_width=True)
-    
-st.divider()
     
 # ===============================
 # ESTATÍSTICAS
