@@ -3,7 +3,11 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 
-st.title("📊 Painel Executivo")
+# carregar CSS
+with open("style/style.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+st.markdown('<div class="title">📊 Painel Executivo — Validação do Método</div>', unsafe_allow_html=True)
 
 df = pd.read_excel("data/PADRAO_CALCULO.xlsx")
 
@@ -24,32 +28,74 @@ equity = df["ENTRADAS"].cumsum()
 drawdown = equity - equity.cummax()
 max_dd = drawdown.min()
 
-# -------------------------
+# -----------------------------
 # CARDS
-# -------------------------
+# -----------------------------
 
 c1,c2,c3,c4,c5 = st.columns(5)
 
-c1.metric("ROI", f"{roi*100:.2f}%")
-c2.metric("Volume", volume)
-c3.metric("Drawdown", f"{max_dd:.2f}")
-c4.metric("Robustez", f"{robustez:.2f}")
-c5.metric("Stake Ideal", f"{stake*100:.2f}%")
+with c1:
+    st.markdown(f"""
+    <div class="card">
+    ROI<br>
+    <div class="metric">{roi*100:.2f}%</div>
+    </div>
+    """,unsafe_allow_html=True)
 
-# -------------------------
-# CURVA
-# -------------------------
+with c2:
+    st.markdown(f"""
+    <div class="card">
+    Volume<br>
+    <div class="metric">{volume}</div>
+    </div>
+    """,unsafe_allow_html=True)
 
-st.subheader("📈 Curva da banca")
+with c3:
+    st.markdown(f"""
+    <div class="card">
+    Drawdown<br>
+    <div class="metric">{max_dd:.2f}</div>
+    </div>
+    """,unsafe_allow_html=True)
 
-fig = px.line(equity)
-st.plotly_chart(fig,use_container_width=True)
+with c4:
+    st.markdown(f"""
+    <div class="card">
+    Robustez<br>
+    <div class="metric">{robustez:.2f}</div>
+    </div>
+    """,unsafe_allow_html=True)
 
-# -------------------------
-# DRAWDOWN
-# -------------------------
+with c5:
+    st.markdown(f"""
+    <div class="card">
+    Stake Ideal<br>
+    <div class="metric">{stake*100:.2f}%</div>
+    </div>
+    """,unsafe_allow_html=True)
 
-st.subheader("📉 Drawdown")
+# -----------------------------
+# GRÁFICOS
+# -----------------------------
 
-fig2 = px.area(drawdown)
-st.plotly_chart(fig2,use_container_width=True)
+col1,col2 = st.columns(2)
+
+with col1:
+    st.subheader("📈 Curva da banca")
+
+    fig = px.line(
+        equity,
+        template="plotly_dark"
+    )
+
+    st.plotly_chart(fig,use_container_width=True)
+
+with col2:
+    st.subheader("📉 Drawdown")
+
+    fig2 = px.area(
+        drawdown,
+        template="plotly_dark"
+    )
+
+    st.plotly_chart(fig2,use_container_width=True)
