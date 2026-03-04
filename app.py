@@ -11,17 +11,18 @@ st.set_page_config(
 # ===============================
 # CARREGAR DADOS
 # ===============================
+
 st.sidebar.subheader("📂 Dados")
 
 arquivo = st.sidebar.file_uploader(
     "Carregar planilha de trades",
-    type=["xlsx","csv"]
+    type=["xlsx", "csv"]
 )
+
 if arquivo is not None:
 
     if arquivo.name.endswith(".csv"):
         df = pd.read_csv(arquivo)
-
     else:
         df = pd.read_excel(arquivo)
 
@@ -32,16 +33,15 @@ else:
 
 retornos = df["ENTRADAS"].dropna()
 
-
 # ===============================
-# SELETOR DE TRADES
+# SELETOR DE AMOSTRA
 # ===============================
 
 st.subheader("Curva da banca")
 
 janela = st.radio(
-    "Amostras Analisados",
-    [100,500,1000],
+    "Amostras analisadas",
+    [100, 500, 1000],
     index=1,
     horizontal=True
 )
@@ -49,7 +49,7 @@ janela = st.radio(
 dados_plot = retornos.tail(janela)
 
 # ===============================
-# CÁLCULOS
+# CÁLCULOS BÁSICOS
 # ===============================
 
 pl = retornos.sum()
@@ -59,9 +59,9 @@ roi = pl / volume
 dp = retornos.std()
 
 erro = 1.96 / np.sqrt(volume)
-robustez = roi / dp
+robustez = roi / dp if dp != 0 else 0
 
-Celeste = roi / (dp ** 2)
+Celeste = roi / (dp ** 2) if dp != 0 else 0
 stake = Celeste * 0.25
 
 equity = dados_plot.cumsum()
@@ -74,7 +74,33 @@ max_dd = drawdown.min()
 # ===============================
 
 banca = 0.5
-risk_ruin = np.exp(-2 * roi * banca / (dp ** 2))
+risk_ruin = np.exp(-2 * roi * banca / (dp ** 2)) if dp != 0 else 1
+
+# ===============================
+# MÉTRICAS AVANÇADAS
+# ===============================
+
+sharpe = roi / dp if dp != 0 else 0
+
+expectancy = retornos.mean()
+
+lucros = retornos[retornos > 0].sum()
+perdas = abs(retornos[retornos < 0].sum())
+
+profit_factor = lucros / perdas if perdas != 0 else 0
+
+winrate = (retornos > 0).mean()
+
+prob_5_losses = (1 - winrate) ** 5
+
+ulcer = np.sqrt(np.mean(drawdown ** 2))
+
+score = (
+    sharpe * 30 +
+    profit_factor * 20 +
+    expectancy * 30 +
+    (1 - risk_ruin) * 20
+)
 
 # ===============================
 # TÍTULO
@@ -157,8 +183,18 @@ with col1:
     st.markdown(f"**ROI:** <span style='color:{cor_roi}'>{roi*100:.2f}%</span>", unsafe_allow_html=True)
     st.markdown(f"**Desvio padrão:** <span style='color:{cor_dp}'>{dp:.2f}</span>", unsafe_allow_html=True)
     st.markdown(f"**Intervalo confiança:** <span style='color:{cor_ic}'>{erro:.2f}</span>", unsafe_allow_html=True)
+
+    st.markdown(f"**Sharpe:** {sharpe:.2f}")
+    st.markdown(f"**Expectância:** {expectancy:.2f}")
+    st.markdown(f"**Profit Factor:** {profit_factor:.2f}")
+    st.markdown(f"**Ulcer Index:** {ulcer:.2f}")
+
     st.markdown(f"**Celeste:** <span style='color:{cor_celeste}'>{Celeste*100:.2f}%</span>", unsafe_allow_html=True)
     st.markdown(f"**Risco de ruína:** <span style='color:{cor_ruina}'>{risk_ruin*100:.2f}%</span>", unsafe_allow_html=True)
+
+    st.markdown(f"**Probabilidade de 5 reds seguidos:** {prob_5_losses*100:.2f}%")
+
+    st.markdown(f"**Score do método:** {score:.2f}")
 
 # ===============================
 # DIAGNÓSTICO
@@ -168,8 +204,10 @@ with col2:
 
     st.subheader("🛡 Diagnóstico")
 
-    if erro < 0.1:
-        st.success("Amostra estatisticamente confiável")
+    if erro < 0.05:
+        st.success("Amostra estatística forte")
+    elif erro < 0.1:
+        st.info("Amostra aceitável")
     else:
         st.warning("Amostra pequena")
 
@@ -177,6 +215,20 @@ with col2:
         st.success("Drawdown saudável")
     else:
         st.warning("Drawdown elevado")
+
+    if sharpe > 0.6:
+        st.success("Sharpe excelente — vantagem forte")
+    elif sharpe > 0.3:
+        st.info("Sharpe positivo")
+    else:
+        st.warning("Sharpe baixo")
+
+    if profit_factor > 1.7:
+        st.success("Profit Factor excelente")
+    elif profit_factor > 1.3:
+        st.info("Profit Factor saudável")
+    else:
+        st.warning("Profit Factor baixo")
 
     if robustez < 0.2:
         st.warning("Robustez baixa — stake conservadora")
@@ -193,7 +245,7 @@ st.subheader("🎯 Risco de Ruína")
 
 fig = go.Figure(go.Indicator(
     mode="gauge+number",
-    value=round(risk_ruin*100,2),
+    value=round(risk_ruin*100, 2),
 
     number={
         'suffix': "%",
@@ -206,12 +258,12 @@ fig = go.Figure(go.Indicator(
     },
 
     gauge={
-        'axis': {'range': [0,100]},
+        'axis': {'range': [0, 100]},
         'steps': [
-            {'range':[0,3],'color':'#10b981'},
-            {'range':[3,10],'color':'#facc15'},
-            {'range':[10,25],'color':'#fb923c'},
-            {'range':[25,100],'color':'#ef4444'}
+            {'range': [0, 3], 'color': '#10b981'},
+            {'range': [3, 10], 'color': '#facc15'},
+            {'range': [10, 25], 'color': '#fb923c'},
+            {'range': [25, 100], 'color': '#ef4444'}
         ]
     }
 ))
@@ -231,7 +283,7 @@ resultados = []
 
 for i in range(simulacoes):
 
-    sim = np.random.choice(dados_plot,size=trades,replace=True)
+    sim = np.random.choice(dados_plot, size=trades, replace=True)
     resultados.append(sim.cumsum()[-1])
 
 fig = go.Figure()
@@ -254,14 +306,14 @@ st.plotly_chart(fig, use_container_width=True)
 
 st.subheader("🚦 Semáforo do Método")
 
-if erro < 0.05 and robustez > 0.4 and risk_ruin < 0.03:
+if sharpe > 0.5 and profit_factor > 1.5 and risk_ruin < 0.05:
 
     st.success("🟢 MÉTODO PROFISSIONAL")
 
-elif erro < 0.1 and robustez > 0.2:
+elif sharpe > 0.25 and profit_factor > 1.2:
 
-    st.info("🟡 MÉTODO CONFIÁVEL")
+    st.warning("🟡 MÉTODO OPERÁVEL")
 
 else:
 
-    st.error("🔴 MÉTODO ARRISCADO")
+    st.error("🔴 MÉTODO INSTÁVEL")
