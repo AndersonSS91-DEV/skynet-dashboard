@@ -11,10 +11,27 @@ st.set_page_config(
 # ===============================
 # CARREGAR DADOS
 # ===============================
+st.sidebar.subheader("📂 Dados")
 
-df = pd.read_excel("data/PADRAO_CALCULO.xlsx")
+arquivo = st.sidebar.file_uploader(
+    "Carregar planilha de trades",
+    type=["xlsx","csv"]
+)
+if arquivo is not None:
 
-retornos = df["ENTRADAS"]
+    if arquivo.name.endswith(".csv"):
+        df = pd.read_csv(arquivo)
+
+    else:
+        df = pd.read_excel(arquivo)
+
+else:
+
+    st.info("Carregue uma planilha para iniciar a análise.")
+    st.stop()
+
+retornos = df["ENTRADAS"].dropna()
+
 
 # ===============================
 # SELETOR DE TRADES
