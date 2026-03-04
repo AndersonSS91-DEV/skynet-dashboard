@@ -30,7 +30,11 @@ else:
     st.info("Carregue a Planilha para Iniciar a Análise.")
     st.stop()
 
-retornos = df["ENTRADAS"].dropna()
+if "ENTRADAS" not in df.columns:
+    st.error("Coluna ENTRADAS não encontrada na planilha")
+    st.stop()
+
+retornos = pd.to_numeric(df["ENTRADAS"], errors="coerce").dropna()
 
 # ===============================
 # SELETOR DE AMOSTRA
@@ -50,9 +54,11 @@ dados_plot = retornos.tail(janela)
 # ===============================
 # CÁLCULOS BÁSICOS
 # ===============================
-df["ENTRADAS"] = pd.to_numeric(df["ENTRADAS"], errors="coerce")
-df["ODD"] = pd.to_numeric(df["ODD"], errors="coerce")
-odd_media = df["ODD"].mean()
+if "ODD" in df.columns:
+    df["ODD"] = pd.to_numeric(df["ODD"], errors="coerce")
+    odd_media = df["ODD"].mean()
+else:
+    odd_media = np.nan
 
 pl = retornos.sum()
 volume = len(retornos)
