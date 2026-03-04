@@ -313,11 +313,10 @@ fig.add_trace(go.Histogram(
 
 fig.update_layout(
     template="plotly_dark",
-    title="Distribuição de resultados simulados"
+    title="Distribuição de Resultados Simulados"
 )
 
 st.plotly_chart(fig, use_container_width=True)
-
 st.markdown("---")
 # ===============================
 # SEMÁFORO
