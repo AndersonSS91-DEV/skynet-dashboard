@@ -166,6 +166,8 @@ with g2:
     )
 
     st.plotly_chart(fig2, use_container_width=True)
+    
+    st.markdown("---")
 
 # ===============================
 # ESTATÍSTICAS
@@ -243,21 +245,23 @@ with col2:
 
     # Ulcer
     if ulcer < 3:
-        st.success("Ulcer baixo — curva saudável")
+        st.success("Ulcer Baixo — Saudável")
     elif ulcer < 5:
-        st.info("Ulcer controlado")
+        st.info("Ulcer Controlado")
     elif ulcer < 8:
-        st.warning("Ulcer moderado")
+        st.warning("Ulcer Moderado")
     else:
-        st.error("Ulcer alto")
+        st.error("Ulcer Alto")
 
     # Robustez
     if robustez < 0.2:
-        st.warning("Robustez baixa — stake conservadora")
+        st.warning("Robustez Baixa — Stake Conservadora")
     elif robustez < 0.4:
-        st.info("Robustez moderada")
+        st.info("Robustez Moderada")
     else:
-        st.success("Robustez forte")
+        st.success("Robustez Forte")
+                
+        st.markdown("---")
 
 # ===============================
 # GAUGE RISCO DE RUÍNA
@@ -282,6 +286,8 @@ fig = go.Figure(go.Indicator(
 ))
 
 st.plotly_chart(fig, use_container_width=True)
+
+st.markdown("---")
 
 # ===============================
 # MONTE CARLO
