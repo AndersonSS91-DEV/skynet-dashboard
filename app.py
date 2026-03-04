@@ -54,9 +54,8 @@ dados_plot = retornos.tail(janela)
 # ===============================
 # CÁLCULOS BÁSICOS
 # ===============================
-if "ODD" in df.columns:
-    df["ODD"] = pd.to_numeric(df["ODD"], errors="coerce")
-    odd_media = df["ODD"].mean()
+if (df["ENTRADAS"] > 0).any():
+    odd_media = df.loc[df["ENTRADAS"] > 0, "ENTRADAS"].mean() + 1
 else:
     odd_media = np.nan
 
