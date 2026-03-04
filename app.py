@@ -27,7 +27,6 @@ if arquivo is not None:
         df = pd.read_excel(arquivo)
 
 else:
-
     st.info("Carregue uma planilha para iniciar a análise.")
     st.stop()
 
@@ -60,6 +59,20 @@ dp = retornos.std()
 
 erro = 1.96 / np.sqrt(volume)
 
+# Robustez (ex-Sharpe)
+robustez = roi / dp if dp != 0 else 0
+
+# Expectância
+expectancy = retornos.mean()
+
+# SQN (System Quality Number)
+sqn = (np.sqrt(volume) * expectancy / dp) if dp != 0 else 0
+
+# Kelly (Celeste)
+Celeste = roi / (dp ** 2) if dp != 0 else 0
+stake = Celeste * 0.25
+
+# Curva
 equity = dados_plot.cumsum()
 
 drawdown = equity - equity.cummax()
@@ -76,12 +89,6 @@ risk_ruin = np.exp(-2 * roi * banca / (dp ** 2)) if dp != 0 else 1
 # MÉTRICAS AVANÇADAS
 # ===============================
 
-expectancy = retornos.mean()
-
-sharpe = roi / dp if dp != 0 else 0
-
-robustez = expectancy / dp if dp != 0 else 0
-
 lucros = retornos[retornos > 0].sum()
 perdas = abs(retornos[retornos < 0].sum())
 
@@ -93,11 +100,8 @@ prob_5_losses = (1 - winrate) ** 5
 
 ulcer = np.sqrt(np.mean(drawdown ** 2))
 
-Celeste = roi / (dp ** 2) if dp != 0 else 0
-stake = Celeste * 0.25
-
 score = (
-    sharpe * 30 +
+    robustez * 30 +
     profit_factor * 20 +
     expectancy * 30 +
     (1 - risk_ruin) * 20
@@ -118,7 +122,7 @@ c1, c2, c3, c4, c5 = st.columns(5)
 c1.metric("ROI", f"{roi*100:.2f}%")
 c2.metric("Volume", volume)
 c3.metric("Drawdown", f"{max_dd:.2f}")
-c4.metric("Sharpe", f"{sharpe:.2f}")
+c4.metric("Robustez", f"{robustez:.2f}")
 c5.metric("Stake Ideal", f"{stake*100:.2f}%")
 
 # ===============================
@@ -185,17 +189,16 @@ with col1:
     st.markdown(f"**Desvio padrão:** <span style='color:{cor_dp}'>{dp:.2f}</span>", unsafe_allow_html=True)
     st.markdown(f"**Intervalo confiança:** <span style='color:{cor_ic}'>{erro:.2f}</span>", unsafe_allow_html=True)
 
-    st.markdown(f"**Sharpe:** {sharpe:.2f}")
     st.markdown(f"**Robustez:** {robustez:.2f}")
     st.markdown(f"**Expectância:** {expectancy:.2f}")
     st.markdown(f"**Profit Factor:** {profit_factor:.2f}")
     st.markdown(f"**Ulcer Index:** {ulcer:.2f}")
+    st.markdown(f"**SQN:** {sqn:.2f}")
 
     st.markdown(f"**Celeste:** <span style='color:{cor_celeste}'>{Celeste*100:.2f}%</span>", unsafe_allow_html=True)
     st.markdown(f"**Risco de ruína:** <span style='color:{cor_ruina}'>{risk_ruin*100:.2f}%</span>", unsafe_allow_html=True)
 
     st.markdown(f"**Probabilidade de 5 reds seguidos:** {prob_5_losses*100:.2f}%")
-
     st.markdown(f"**Score do método:** {score:.2f}")
 
 # ===============================
@@ -206,25 +209,31 @@ with col2:
 
     st.subheader("🛡 Diagnóstico")
 
+    # Amostra
     if erro < 0.05:
-        st.success("Amostra Estatística Forte")
+        st.success("Amostra estatística forte")
     elif erro < 0.1:
-        st.info("Amostra Aceitável")
+        st.info("Amostra aceitável")
     else:
-        st.warning("Amostra Pequena")
+        st.warning("Amostra pequena")
 
+    # Drawdown
     if max_dd > -0.25:
-        st.success("Drawdown Saudável")
+        st.success("Drawdown saudável")
     else:
-        st.warning("Drawdown Elevado")
+        st.warning("Drawdown elevado")
 
-    if sharpe > 0.6:
-        st.success("Sharpe Excelente — vantagem forte")
-    elif sharpe > 0.3:
-        st.info("Sharpe Positivo")
+    # SQN
+    if sqn > 3:
+        st.success("SQN excelente — sistema profissional")
+    elif sqn > 2:
+        st.info("SQN bom — vantagem consistente")
+    elif sqn > 1.6:
+        st.warning("SQN moderado")
     else:
-        st.warning("Sharpe Baixo")
+        st.error("SQN fraco")
 
+    # Profit Factor
     if profit_factor > 1.7:
         st.success("Profit Factor excelente")
     elif profit_factor > 1.3:
@@ -232,21 +241,23 @@ with col2:
     else:
         st.warning("Profit Factor baixo")
 
+    # Ulcer
     if ulcer < 3:
-        st.success("Ulcer Baixo — Curva Muito Saudável")
+        st.success("Ulcer baixo — curva saudável")
     elif ulcer < 5:
-        st.info("Ulcer Controlado — Risco Aceitável")
+        st.info("Ulcer controlado")
     elif ulcer < 8:
-        st.warning("Ulcer Moderado — Curva pesada")
+        st.warning("Ulcer moderado")
     else:
-        st.error("Ulcer Alto — Sistema Agressivo")
+        st.error("Ulcer alto")
 
-    if score > 70:
-        st.success("Score Alto — Método Profissional")
-    elif score > 40:
-        st.info("Score Médio — Método Operável")
+    # Robustez
+    if robustez < 0.2:
+        st.warning("Robustez baixa — stake conservadora")
+    elif robustez < 0.4:
+        st.info("Robustez moderada")
     else:
-        st.error("Score Baixo — Vantagem Fraca")
+        st.success("Robustez forte")
 
 # ===============================
 # GAUGE RISCO DE RUÍNA
@@ -257,11 +268,8 @@ st.subheader("🎯 Risco de Ruína")
 fig = go.Figure(go.Indicator(
     mode="gauge+number",
     value=round(risk_ruin*100, 2),
-
-    number={'suffix': "%",'valueformat': ".2f"},
-
-    title={'text': "Probabilidade (%)",'font': {'size': 30}},
-
+    number={'suffix': "%", 'valueformat': ".2f"},
+    title={'text': "Probabilidade (%)"},
     gauge={
         'axis': {'range': [0, 100]},
         'steps': [
@@ -306,16 +314,16 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 # ===============================
-# SEMÁFORO DO MÉTODO
+# SEMÁFORO
 # ===============================
 
 st.subheader("🚦 Semáforo do Método")
 
-if sharpe > 0.5 and profit_factor > 1.5 and risk_ruin < 0.05:
+if sqn > 2.5 and profit_factor > 1.5 and risk_ruin < 0.05:
 
     st.success("🟢 MÉTODO PROFISSIONAL")
 
-elif sharpe > 0.25 and profit_factor > 1.2:
+elif sqn > 1.6 and profit_factor > 1.2:
 
     st.warning("🟡 MÉTODO OPERÁVEL")
 
