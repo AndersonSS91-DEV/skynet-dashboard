@@ -5,17 +5,19 @@ import plotly.graph_objects as go
 
 st.set_page_config(layout="wide")
 
-# ------------------------------
-# DADOS
-# ------------------------------
+# ===============================
+# CARREGAR DADOS
+# ===============================
 
 df = pd.read_excel("data/PADRAO_CALCULO.xlsx")
 
-pl = df["ENTRADAS"].sum()
-volume = len(df)
+retornos = df["ENTRADAS"]
+
+pl = retornos.sum()
+volume = len(retornos)
 
 roi = pl/volume
-dp = df["ENTRADAS"].std()
+dp = retornos.std()
 
 erro = 1.96/np.sqrt(volume)
 robustez = roi/dp
@@ -23,20 +25,28 @@ robustez = roi/dp
 kelly = roi/(dp**2)
 stake = kelly*0.25
 
-equity = df["ENTRADAS"].cumsum()
+equity = retornos.cumsum()
 
 drawdown = equity - equity.cummax()
 max_dd = drawdown.min()
 
-# ------------------------------
+# ===============================
+# RISCO DE RUÍNA
+# ===============================
+
+banca = 0.5
+
+risk_ruin = np.exp(-2*roi*banca/(dp**2))
+
+# ===============================
 # TÍTULO
-# ------------------------------
+# ===============================
 
 st.title("📊 Painel Executivo — Validação do Método")
 
-# ------------------------------
+# ===============================
 # CARDS
-# ------------------------------
+# ===============================
 
 c1,c2,c3,c4,c5 = st.columns(5)
 
@@ -46,11 +56,9 @@ c3.metric("Drawdown",f"{max_dd:.2f}")
 c4.metric("Robustez",f"{robustez:.2f}")
 c5.metric("Stake Ideal",f"{stake*100:.2f}%")
 
-st.write("")
-
-# ------------------------------
-# GRÁFICOS
-# ------------------------------
+# ===============================
+# CURVA E DRAWDOWN
+# ===============================
 
 g1,g2 = st.columns(2)
 
@@ -61,7 +69,7 @@ with g1:
     fig.add_trace(go.Scatter(
         y=equity,
         mode="lines",
-        line=dict(width=3)
+        line=dict(width=3,color="#10b981")
     ))
 
     fig.update_layout(
@@ -72,7 +80,6 @@ with g1:
 
     st.plotly_chart(fig,use_container_width=True)
 
-
 with g2:
 
     fig2 = go.Figure()
@@ -80,8 +87,7 @@ with g2:
     fig2.add_trace(go.Scatter(
         y=drawdown,
         fill="tozeroy",
-        mode="lines",
-        line=dict(width=2,color="red")
+        line=dict(color="red")
     ))
 
     fig2.update_layout(
@@ -92,9 +98,9 @@ with g2:
 
     st.plotly_chart(fig2,use_container_width=True)
 
-# ------------------------------
+# ===============================
 # ESTATÍSTICAS + DIAGNÓSTICO
-# ------------------------------
+# ===============================
 
 col1,col2 = st.columns(2)
 
@@ -107,6 +113,7 @@ with col1:
     st.write("Desvio padrão:",round(dp,2))
     st.write("Intervalo confiança:",round(erro,2))
     st.write("Kelly:",f"{kelly*100:.2f}%")
+    st.write("Risco de ruína:",f"{risk_ruin*100:.2f}%")
 
 with col2:
 
@@ -114,12 +121,90 @@ with col2:
 
     if erro < 0.1:
         st.success("Amostra estatisticamente confiável")
+    else:
+        st.warning("Amostra pequena")
 
     if max_dd > -0.25:
         st.success("Drawdown saudável")
+    else:
+        st.warning("Drawdown elevado")
 
     if robustez < 0.2:
         st.warning("Robustez baixa — stake conservadora")
 
-    if robustez > 0.4:
+    elif robustez < 0.4:
+        st.info("Robustez moderada")
+
+    else:
         st.success("Robustez forte")
+
+# ===============================
+# GAUGE RISCO DE RUÍNA
+# ===============================
+
+st.subheader("🎯 Risco de Ruína")
+
+fig = go.Figure(go.Indicator(
+    mode="gauge+number",
+    value=risk_ruin*100,
+    title={'text': "Probabilidade (%)"},
+    gauge={
+        'axis': {'range': [0,100]},
+        'steps': [
+            {'range':[0,3],'color':'green'},
+            {'range':[3,10],'color':'yellow'},
+            {'range':[10,25],'color':'orange'},
+            {'range':[25,100],'color':'red'}
+        ]
+    }
+))
+
+st.plotly_chart(fig,use_container_width=True)
+
+# ===============================
+# MONTE CARLO
+# ===============================
+
+st.subheader("📈 Simulação Monte Carlo")
+
+simulacoes = 500
+trades = volume
+
+resultados = []
+
+for i in range(simulacoes):
+
+    sim = np.random.choice(retornos,size=trades,replace=True)
+    resultados.append(sim.cumsum()[-1])
+
+fig = go.Figure()
+
+fig.add_trace(go.Histogram(
+    x=resultados,
+    nbinsx=50
+))
+
+fig.update_layout(
+    template="plotly_dark",
+    title="Distribuição de resultados simulados"
+)
+
+st.plotly_chart(fig,use_container_width=True)
+
+# ===============================
+# SEMÁFORO DO MÉTODO
+# ===============================
+
+st.subheader("🚦 Semáforo do Método")
+
+if erro < 0.05 and robustez > 0.4 and risk_ruin < 0.03:
+
+    st.success("🟢 MÉTODO PROFISSIONAL")
+
+elif erro < 0.1 and robustez > 0.2:
+
+    st.info("🟡 MÉTODO CONFIÁVEL")
+
+else:
+
+    st.error("🔴 MÉTODO ARRISCADO")
