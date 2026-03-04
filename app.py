@@ -27,7 +27,7 @@ if arquivo is not None:
         df = pd.read_excel(arquivo)
 
 else:
-    st.info("Carregue uma planilha para iniciar a análise.")
+    st.info("Carregue a Planilha para Iniciar a Análise.")
     st.stop()
 
 retornos = df["ENTRADAS"].dropna()
@@ -36,7 +36,7 @@ retornos = df["ENTRADAS"].dropna()
 # SELETOR DE AMOSTRA
 # ===============================
 
-st.subheader("Curva da banca")
+st.subheader("Dados")
 
 janela = st.radio(
     "Amostras analisadas",
@@ -111,7 +111,7 @@ score = (
 # TÍTULO
 # ===============================
 
-st.title("📊 Painel Executivo — Validação do Método")
+st.title("📊 Validação do Método")
 
 # ===============================
 # CARDS
@@ -125,6 +125,7 @@ c3.metric("Drawdown", f"{max_dd:.2f}")
 c4.metric("Robustez", f"{robustez:.2f}")
 c5.metric("Stake Ideal", f"{stake*100:.2f}%")
 
+st.markdown("---")
 # ===============================
 # GRÁFICOS
 # ===============================
