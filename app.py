@@ -372,7 +372,7 @@ st.divider()
 # GAUGE RISCO DE RUÍNA
 # ===============================
 
-st.subheader("🎯 Risco de Ruína de 50%")
+st.subheader("💀🎯☠️ Risco de Ruína de 50%")
 
 fig = go.Figure(go.Indicator(
     mode="gauge+number",
