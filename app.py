@@ -21,7 +21,7 @@ arquivo = st.sidebar.file_uploader(
 )
 
 # ===============================
-# CARREGAMENTO HÍBRIDO
+# CARREGAMENTO
 # ===============================
 
 if arquivo is not None:
@@ -61,7 +61,7 @@ df["ENTRADAS"] = pd.to_numeric(df["ENTRADAS"], errors="coerce")
 retornos = df["ENTRADAS"].dropna()
 
 # ===============================
-# ABAS PRINCIPAIS
+# ABAS
 # ===============================
 
 tab_metodo, tab_tools = st.tabs([
@@ -69,9 +69,9 @@ tab_metodo, tab_tools = st.tabs([
     "🧠 Trading Tools"
 ])
 
-# =====================================================
+# =========================================================
 # ABA MÉTODO
-# =====================================================
+# =========================================================
 
 with tab_metodo:
 
@@ -118,7 +118,6 @@ with tab_metodo:
     perdas = abs(retornos[retornos < 0].sum())
 
     profit_factor = lucros / perdas if perdas != 0 else 0
-
     winrate = (retornos > 0).mean()
 
     prob_5_losses = (1 - winrate) ** 5
@@ -132,7 +131,15 @@ with tab_metodo:
         (1 - risk_ruin) * 20
     )
 
+    # ===============================
+    # TÍTULO
+    # ===============================
+
     st.title("📊 Validação do Método")
+
+    # ===============================
+    # CARDS
+    # ===============================
 
     c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
 
@@ -144,6 +151,10 @@ with tab_metodo:
     c6.metric("P/L", f"{pl:.2f}")
     c7.metric("Odd Média", f"{odd_media:.2f}")
 
+    # ===============================
+    # GRÁFICOS
+    # ===============================
+
     g1, g2 = st.columns(2)
 
     with g1:
@@ -153,30 +164,12 @@ with tab_metodo:
         fig.add_trace(go.Scatter(
             y=equity,
             mode="lines",
-            line=dict(width=10, color="rgba(0,150,255,0.15)"),
-            hoverinfo="skip",
-            showlegend=False
-        ))
-
-        fig.add_trace(go.Scatter(
-            y=equity,
-            mode="lines",
-            line=dict(width=6, color="rgba(0,150,255,0.35)"),
-            hoverinfo="skip",
-            showlegend=False
-        ))
-
-        fig.add_trace(go.Scatter(
-            y=equity,
-            mode="lines",
-            line=dict(width=2, color="#38bdf8"),
-            name="Equity"
+            line=dict(width=2, color="#38bdf8")
         ))
 
         fig.update_layout(
             template="plotly_dark",
-            title="Curva da banca",
-            height=350
+            title="Curva da banca"
         )
 
         st.plotly_chart(fig, use_container_width=True)
@@ -189,21 +182,104 @@ with tab_metodo:
             y=drawdown,
             mode="lines",
             line=dict(width=2, color="#ef4444"),
-            fill="tozeroy",
-            name="Drawdown"
+            fill="tozeroy"
         ))
 
         fig2.update_layout(
             template="plotly_dark",
-            title="Drawdown",
-            height=350
+            title="Drawdown"
         )
 
         st.plotly_chart(fig2, use_container_width=True)
 
-# =====================================================
+    # ===============================
+    # ESTATÍSTICAS
+    # ===============================
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        st.subheader("📊 Estatísticas")
+
+        st.write(f"PL: {pl:.2f}")
+        st.write(f"ROI: {roi*100:.2f}%")
+        st.write(f"Desvio padrão: {dp:.2f}")
+        st.write(f"Expectância: {expectancy:.2f}")
+        st.write(f"Profit Factor: {profit_factor:.2f}")
+        st.write(f"Ulcer Index: {ulcer:.2f}")
+        st.write(f"SQN: {sqn:.2f}")
+        st.write(f"Risco de ruína: {risk_ruin*100:.2f}%")
+        st.write(f"Probabilidade de 5 reds: {prob_5_losses*100:.2f}%")
+
+    with col2:
+
+        st.subheader("🛡 Diagnóstico")
+
+        if sqn > 2.5 and profit_factor > 1.5:
+            st.success("Sistema forte")
+        elif sqn > 1.6:
+            st.warning("Sistema moderado")
+        else:
+            st.error("Sistema fraco")
+
+    # ===============================
+    # GAUGE RISCO DE RUÍNA
+    # ===============================
+
+    st.subheader("💀 Risco de Ruína")
+
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=round(risk_ruin*100, 2),
+        number={'suffix': "%"},
+        gauge={'axis': {'range': [0, 100]}}
+    ))
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    # ===============================
+    # MONTE CARLO
+    # ===============================
+
+    st.subheader("📈 Monte Carlo")
+
+    simulacoes = 500
+    trades = volume
+
+    resultados = []
+
+    for i in range(simulacoes):
+        sim = np.random.choice(dados_plot, size=trades, replace=True)
+        resultados.append(sim.cumsum()[-1])
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Histogram(x=resultados))
+
+    fig.update_layout(
+        template="plotly_dark",
+        title="Distribuição de resultados"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    # ===============================
+    # SEMÁFORO
+    # ===============================
+
+    st.subheader("🚦 Semáforo")
+
+    if sqn > 2.5 and profit_factor > 1.5 and risk_ruin < 0.05:
+        st.success("🟢 MÉTODO PROFISSIONAL")
+    elif sqn > 1.6:
+        st.warning("🟡 MÉTODO OPERÁVEL")
+    else:
+        st.error("🔴 MÉTODO INSTÁVEL")
+
+# =========================================================
 # ABA TRADING TOOLS
-# =====================================================
+# =========================================================
 
 with tab_tools:
 
@@ -216,10 +292,9 @@ with tab_tools:
         "Simulador"
     ])
 
-    # CASHOUT
     with tab1:
 
-        st.subheader("Cashout / Greenbook")
+        st.subheader("Cashout")
 
         c1, c2, c3 = st.columns(3)
 
@@ -229,26 +304,15 @@ with tab_tools:
 
         lay_stake = (back_odd * back_stake) / lay_odd
 
-        lucro = lay_stake - back_stake
+        st.metric("Stake Lay", f"{lay_stake:.2f}")
 
-        c4, c5 = st.columns(2)
-
-        c4.metric("Stake Lay", f"{lay_stake:.2f}")
-        c5.metric("Green", f"{lucro:.2f}")
-
-    # DUTCHING
     with tab2:
 
         st.subheader("Dutching")
 
-        n = st.slider("Número de seleções", 2, 6, 3)
+        n = st.slider("Seleções", 2, 6, 3)
 
-        odds = []
-
-        for i in range(n):
-            odds.append(
-                st.number_input(f"Odd {i+1}", value=2.0, key=f"d{i}")
-            )
+        odds = [st.number_input(f"Odd {i+1}", value=2.0, key=i) for i in range(n)]
 
         stake_total = st.number_input("Stake total", value=100.0)
 
@@ -262,62 +326,41 @@ with tab_tools:
             "Stake": stakes
         })
 
-        st.dataframe(df_dutch, use_container_width=True)
+        st.dataframe(df_dutch)
 
-    # VALUE BET
     with tab3:
 
         st.subheader("Value Bet")
 
-        odd = st.number_input("Odd mercado", value=2.0)
-        prob = st.number_input("Probabilidade modelo (%)", value=55.0)
+        odd = st.number_input("Odd", value=2.0)
+        prob = st.number_input("Probabilidade (%)", value=55.0)
 
         prob /= 100
-
-        prob_imp = 1 / odd
         ev = (prob * odd) - 1
 
-        c1, c2, c3 = st.columns(3)
+        st.metric("EV", f"{ev:.3f}")
 
-        c1.metric("Prob Implícita", f"{prob_imp*100:.2f}%")
-        c2.metric("Prob Modelo", f"{prob*100:.2f}%")
-        c3.metric("EV", f"{ev:.3f}")
-
-        if ev > 0:
-            st.success("Aposta de valor")
-        else:
-            st.error("Sem valor")
-
-    # SIMULADOR
     with tab4:
 
-        st.subheader("Simulador de banca")
+        st.subheader("Simulador")
 
-        banca = st.number_input("Banca inicial", value=1000.0)
-
-        roi = st.slider("ROI médio (%)", 0.5, 10.0, 3.0)
-
+        banca = st.number_input("Banca", value=1000.0)
+        roi_sim = st.slider("ROI (%)", 0.5, 10.0, 3.0)
         trades = st.slider("Trades", 10, 500, 100)
 
         curva = [banca]
 
         for i in range(trades):
-
-            lucro = curva[-1] * (roi / 100)
-
+            lucro = curva[-1]*(roi_sim/100)
             curva.append(curva[-1] + lucro)
 
         fig = go.Figure()
 
         fig.add_trace(go.Scatter(
             y=curva,
-            mode="lines",
-            line=dict(width=3, color="#38bdf8")
+            mode="lines"
         ))
 
-        fig.update_layout(
-            template="plotly_dark",
-            title="Crescimento da banca"
-        )
+        fig.update_layout(template="plotly_dark")
 
         st.plotly_chart(fig, use_container_width=True)
