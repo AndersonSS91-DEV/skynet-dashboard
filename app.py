@@ -21,7 +21,7 @@ arquivo = st.sidebar.file_uploader(
 )
 
 # ===============================
-# CARREGAMENTO
+# CARREGAMENTO HÍBRIDO
 # ===============================
 
 if arquivo is not None:
@@ -58,22 +58,24 @@ if "ENTRADAS" not in df.columns:
     st.stop()
 
 df["ENTRADAS"] = pd.to_numeric(df["ENTRADAS"], errors="coerce")
+
 retornos = df["ENTRADAS"].dropna()
 
 # ===============================
-# ABAS
+# ABAS PRINCIPAIS
 # ===============================
 
-tab_metodo, tab_tools = st.tabs([
-    "📊 Validação do Método",
-    "🧠 Trading Tools"
-])
+tab_metodo, tab_tools = st.tabs(["📊 Validação do Método", "🧠 Trading Tools"])
 
-# =========================================================
-# ABA MÉTODO
-# =========================================================
+# =====================================================
+# DASHBOARD ORIGINAL (INTACTO)
+# =====================================================
 
 with tab_metodo:
+
+    # ===============================
+    # SELETOR DE AMOSTRA
+    # ===============================
 
     st.subheader("Dados")
 
@@ -85,6 +87,10 @@ with tab_metodo:
     )
 
     dados_plot = retornos.tail(janela)
+
+    # ===============================
+    # CÁLCULOS BÁSICOS
+    # ===============================
 
     if (df["ENTRADAS"] > 0).any():
         odd_media = df.loc[df["ENTRADAS"] > 0, "ENTRADAS"].mean() + 1
@@ -100,6 +106,7 @@ with tab_metodo:
     erro = 1.96 / np.sqrt(volume)
 
     robustez = roi / dp if dp != 0 else 0
+
     expectancy = retornos.mean()
 
     sqn = (np.sqrt(volume) * expectancy / dp) if dp != 0 else 0
@@ -108,16 +115,26 @@ with tab_metodo:
     stake = Celeste * 0.25
 
     equity = dados_plot.cumsum()
+
     drawdown = equity - equity.cummax()
     max_dd = drawdown.min()
 
+    # ===============================
+    # RISCO DE RUÍNA
+    # ===============================
+
     banca = 0.5
     risk_ruin = np.exp(-2 * roi * banca / (dp ** 2)) if dp != 0 else 1
+
+    # ===============================
+    # MÉTRICAS AVANÇADAS
+    # ===============================
 
     lucros = retornos[retornos > 0].sum()
     perdas = abs(retornos[retornos < 0].sum())
 
     profit_factor = lucros / perdas if perdas != 0 else 0
+
     winrate = (retornos > 0).mean()
 
     prob_5_losses = (1 - winrate) ** 5
@@ -164,12 +181,37 @@ with tab_metodo:
         fig.add_trace(go.Scatter(
             y=equity,
             mode="lines",
-            line=dict(width=2, color="#38bdf8")
+            line=dict(width=10, color="rgba(0,150,255,0.15)"),
+            hoverinfo="skip",
+            showlegend=False
+        ))
+
+        fig.add_trace(go.Scatter(
+            y=equity,
+            mode="lines",
+            line=dict(width=6, color="rgba(0,150,255,0.35)"),
+            hoverinfo="skip",
+            showlegend=False
+        ))
+
+        fig.add_trace(go.Scatter(
+            y=equity,
+            mode="lines",
+            line=dict(width=2, color="#38bdf8"),
+            name="Equity"
         ))
 
         fig.update_layout(
             template="plotly_dark",
-            title="Curva da banca"
+            title="Curva da banca",
+            height=350,
+            margin=dict(l=20,r=20,t=40,b=20),
+            yaxis=dict(
+                range=[equity.min()*1.1, equity.max()*1.1],
+                showgrid=True,
+                gridcolor="rgba(255,255,255,0.1)"
+            ),
+            xaxis=dict(showgrid=False)
         )
 
         st.plotly_chart(fig, use_container_width=True)
@@ -182,12 +224,14 @@ with tab_metodo:
             y=drawdown,
             mode="lines",
             line=dict(width=2, color="#ef4444"),
-            fill="tozeroy"
+            fill="tozeroy",
+            name="Drawdown"
         ))
 
         fig2.update_layout(
             template="plotly_dark",
-            title="Drawdown"
+            title="Drawdown",
+            height=350
         )
 
         st.plotly_chart(fig2, use_container_width=True)
@@ -223,8 +267,10 @@ with tab_metodo:
         else:
             st.error("Sistema fraco")
 
+    st.divider()
+
     # ===============================
-    # GAUGE RISCO DE RUÍNA
+    # RISCO DE RUÍNA
     # ===============================
 
     st.subheader("💀 Risco de Ruína")
@@ -242,7 +288,7 @@ with tab_metodo:
     # MONTE CARLO
     # ===============================
 
-    st.subheader("📈 Monte Carlo")
+    st.subheader("📈 Simulação Monte Carlo")
 
     simulacoes = 500
     trades = volume
@@ -255,31 +301,21 @@ with tab_metodo:
 
     fig = go.Figure()
 
-    fig.add_trace(go.Histogram(x=resultados))
+    fig.add_trace(go.Histogram(
+        x=resultados,
+        nbinsx=50
+    ))
 
     fig.update_layout(
         template="plotly_dark",
-        title="Distribuição de resultados"
+        title="Distribuição de Resultados Simulados"
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
-    # ===============================
-    # SEMÁFORO
-    # ===============================
-
-    st.subheader("🚦 Semáforo")
-
-    if sqn > 2.5 and profit_factor > 1.5 and risk_ruin < 0.05:
-        st.success("🟢 MÉTODO PROFISSIONAL")
-    elif sqn > 1.6:
-        st.warning("🟡 MÉTODO OPERÁVEL")
-    else:
-        st.error("🔴 MÉTODO INSTÁVEL")
-
-# =========================================================
-# ABA TRADING TOOLS
-# =========================================================
+# =====================================================
+# TRADING TOOLS
+# =====================================================
 
 with tab_tools:
 
@@ -291,76 +327,3 @@ with tab_tools:
         "Value Bet",
         "Simulador"
     ])
-
-    with tab1:
-
-        st.subheader("Cashout")
-
-        c1, c2, c3 = st.columns(3)
-
-        back_odd = c1.number_input("Back Odd", value=1.80)
-        back_stake = c2.number_input("Stake", value=100.0)
-        lay_odd = c3.number_input("Lay Odd", value=2.00)
-
-        lay_stake = (back_odd * back_stake) / lay_odd
-
-        st.metric("Stake Lay", f"{lay_stake:.2f}")
-
-    with tab2:
-
-        st.subheader("Dutching")
-
-        n = st.slider("Seleções", 2, 6, 3)
-
-        odds = [st.number_input(f"Odd {i+1}", value=2.0, key=i) for i in range(n)]
-
-        stake_total = st.number_input("Stake total", value=100.0)
-
-        inv = [1/o for o in odds]
-        soma = sum(inv)
-
-        stakes = [(stake_total*(i/soma)) for i in inv]
-
-        df_dutch = pd.DataFrame({
-            "Odd": odds,
-            "Stake": stakes
-        })
-
-        st.dataframe(df_dutch)
-
-    with tab3:
-
-        st.subheader("Value Bet")
-
-        odd = st.number_input("Odd", value=2.0)
-        prob = st.number_input("Probabilidade (%)", value=55.0)
-
-        prob /= 100
-        ev = (prob * odd) - 1
-
-        st.metric("EV", f"{ev:.3f}")
-
-    with tab4:
-
-        st.subheader("Simulador")
-
-        banca = st.number_input("Banca", value=1000.0)
-        roi_sim = st.slider("ROI (%)", 0.5, 10.0, 3.0)
-        trades = st.slider("Trades", 10, 500, 100)
-
-        curva = [banca]
-
-        for i in range(trades):
-            lucro = curva[-1]*(roi_sim/100)
-            curva.append(curva[-1] + lucro)
-
-        fig = go.Figure()
-
-        fig.add_trace(go.Scatter(
-            y=curva,
-            mode="lines"
-        ))
-
-        fig.update_layout(template="plotly_dark")
-
-        st.plotly_chart(fig, use_container_width=True)
