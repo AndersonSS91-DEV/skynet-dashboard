@@ -8,6 +8,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
+
+tab_dash, tab_calc = st.tabs(["📊 Dashboard", "🧠 Calculadora"])
+with tab_dash:
 # ===============================
 # CARREGAR DADOS
 # ===============================
@@ -444,7 +447,7 @@ else:
 # TRADING TOOLS (SEM ALTERAR O DASHBOARD)
 # =====================================================
 
-with st.sidebar.expander("🧠 Trading Tools", expanded=False):
+with tab_calc:
 
     st.markdown("### Cashout / Greenbook")
 
