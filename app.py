@@ -1,4 +1,3 @@
-import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -17,20 +16,12 @@ tab_dash, tab_calc = st.tabs(["📊 Dashboard", "🧠 Calculadora"])
 
 with tab_dash:
 
-    # ===============================
-    # CARREGAR DADOS
-    # ===============================
-
     st.sidebar.subheader("📂 Dados")
 
     arquivo = st.sidebar.file_uploader(
         "Carregar planilha de trades",
         type=["xlsx", "csv"]
     )
-
-    # ===============================
-    # CARREGAMENTO HÍBRIDO
-    # ===============================
 
     if arquivo is not None:
 
@@ -43,23 +34,23 @@ with tab_dash:
 
     else:
 
-    caminho_padrao = "data/trades_padrao.xlsx"
+        caminho_padrao = "data/trades_padrao.xlsx"
 
-    if os.path.exists(caminho_padrao):
+        if os.path.exists(caminho_padrao):
 
-        df = pd.read_excel(caminho_padrao)
-        st.sidebar.info("Usando base padrão")
+            df = pd.read_excel(caminho_padrao)
+            st.sidebar.info("Usando base padrão")
 
-    else:
+        else:
 
-        st.info("Carregue uma planilha para iniciar a análise")
-        st.stop()
-       
-# ===============================
-# NORMALIZAR COLUNAS
-# ===============================
-df.columns = df.columns.str.strip().str.upper()
+            st.info("Carregue uma planilha para iniciar a análise")
+            st.stop()
 
+    # ===============================
+    # NORMALIZAR COLUNAS
+    # ===============================
+
+    df.columns = df.columns.str.strip().str.upper()
 # ===============================
 # VALIDAR COLUNA NECESSÁRIA
 # ===============================
@@ -544,3 +535,20 @@ with tab_calc:
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+# =====================================================
+# CALCULADORA
+# =====================================================
+
+with tab_calc:
+
+    st.markdown("### Cashout / Greenbook")
+
+    col1, col2, col3 = st.columns(3)
+
+    back_odd = col1.number_input("Back Odd", value=1.80, key="tt_back_odd")
+    back_stake = col2.number_input("Stake", value=100.0, key="tt_back_stake")
+    lay_odd = col3.number_input("Lay Odd", value=2.00, key="tt_lay_odd")
+
+    lay_stake = (back_odd * back_stake) / lay_odd
+    lucro_loss = lay_stake - back_stake
