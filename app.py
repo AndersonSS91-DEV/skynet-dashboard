@@ -536,20 +536,3 @@ with tab_calc:
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
-# =====================================================
-# CALCULADORA
-# =====================================================
-
-with tab_calc:
-
-    st.markdown("### Cashout / Greenbook")
-
-    col1, col2, col3 = st.columns(3)
-
-    back_odd = col1.number_input("Back Odd", value=1.80, key="tt_back_odd")
-    back_stake = col2.number_input("Stake", value=100.0, key="tt_back_stake")
-    lay_odd = col3.number_input("Lay Odd", value=2.00, key="tt_lay_odd")
-
-    lay_stake = (back_odd * back_stake) / lay_odd
-    lucro_loss = lay_stake - back_stake
