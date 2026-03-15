@@ -16,48 +16,49 @@ st.set_page_config(
 tab1, tab2 = st.tabs(["📊 Dashboard", "🧠 Calculadora"])
 
 # =====================================================
+# SIDEBAR
+# =====================================================
+
+st.sidebar.subheader("📂 Dados")
+
+arquivo = st.sidebar.file_uploader(
+    "Carregar planilha de trades",
+    type=["xlsx", "csv"]
+)
+
+df = None
+
+# =====================================================
+# CARREGAMENTO HÍBRIDO
+# =====================================================
+
+if arquivo is not None:
+
+    if arquivo.name.endswith(".csv"):
+        df = pd.read_csv(arquivo)
+    else:
+        df = pd.read_excel(arquivo)
+
+    st.sidebar.success("Arquivo carregado")
+
+else:
+
+    caminho_padrao = "data/trades_padrao.xlsx"
+
+    if os.path.exists(caminho_padrao):
+
+        df = pd.read_excel(caminho_padrao)
+        st.sidebar.info("Usando base padrão")
+
+# =====================================================
 # DASHBOARD
 # =====================================================
 
 with tab1:
 
-    # ===============================
-    # CARREGAR DADOS
-    # ===============================
-
-    st.sidebar.subheader("📂 Dados")
-
-    arquivo = st.sidebar.file_uploader(
-        "Carregar planilha de trades",
-        type=["xlsx", "csv"]
-    )
-
-    # ===============================
-    # CARREGAMENTO HÍBRIDO
-    # ===============================
-
-    if arquivo is not None:
-
-        if arquivo.name.endswith(".csv"):
-            df = pd.read_csv(arquivo)
-        else:
-            df = pd.read_excel(arquivo)
-
-        st.sidebar.success("Arquivo carregado")
-
-    else:
-
-        caminho_padrao = "data/trades_padrao.xlsx"
-
-        if os.path.exists(caminho_padrao):
-
-            df = pd.read_excel(caminho_padrao)
-            st.sidebar.info("Usando base padrão")
-
-        else:
-
-            st.info("Carregue uma planilha para iniciar a análise")
-            st.stop()
+    if df is None:
+        st.info("📂 Carregue uma planilha para iniciar a análise")
+        st.stop()
 
     # ===============================
     # NORMALIZAR COLUNAS
@@ -66,16 +67,12 @@ with tab1:
     df.columns = df.columns.str.strip().str.upper()
 
     # ===============================
-    # VALIDAR COLUNA NECESSÁRIA
+    # VALIDAR COLUNA
     # ===============================
 
     if "ENTRADAS" not in df.columns:
         st.error("Coluna ENTRADAS não encontrada na planilha")
         st.stop()
-
-    # ===============================
-    # CONVERTER PARA NUMÉRICO
-    # ===============================
 
     df["ENTRADAS"] = pd.to_numeric(df["ENTRADAS"], errors="coerce")
 
@@ -97,7 +94,7 @@ with tab1:
     dados_plot = retornos.tail(janela)
 
     # ===============================
-    # CÁLCULOS BÁSICOS
+    # CÁLCULOS
     # ===============================
 
     if (df["ENTRADAS"] > 0).any():
@@ -181,8 +178,7 @@ with tab1:
         fig.add_trace(go.Scatter(
             y=equity,
             mode="lines",
-            line=dict(width=2, color="#38bdf8"),
-            name="Equity"
+            line=dict(width=3, color="#38bdf8")
         ))
 
         fig.update_layout(
@@ -200,9 +196,8 @@ with tab1:
         fig2.add_trace(go.Scatter(
             y=drawdown,
             mode="lines",
-            line=dict(width=2, color="#ef4444"),
-            fill="tozeroy",
-            name="Drawdown"
+            line=dict(width=3, color="#ef4444"),
+            fill="tozeroy"
         ))
 
         fig2.update_layout(
