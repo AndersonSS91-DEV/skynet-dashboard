@@ -53,7 +53,7 @@ with tab_dash:
         else:
 
             st.info("Carregue uma planilha para iniciar a análise")
-            df = None
+       
 # ===============================
 # NORMALIZAR COLUNAS
 # ===============================
