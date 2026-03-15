@@ -16,11 +16,8 @@ aba_ativa = st.session_state.get("_current_tab", "Dashboard")
 # =====================================================
 # DASHBOARD
 # =====================================================
-
 with tab_dash:
 
-    if st.session_state.get("_current_tab") == "Calculadora":
-        st.stop()
     st.sidebar.subheader("📂 Dados")
 
     arquivo = st.sidebar.file_uploader(
@@ -48,24 +45,22 @@ with tab_dash:
 
         else:
 
-    st.info("Carregue uma planilha para iniciar a análise")
-
-    if tab_dash:
-        st.stop()
+            st.info("Carregue uma planilha para iniciar a análise")
+            st.stop()
 
     # ===============================
     # NORMALIZAR COLUNAS
     # ===============================
 
     df.columns = df.columns.str.strip().str.upper()
-# ===============================
-# VALIDAR COLUNA NECESSÁRIA
-# ===============================
 
-if "ENTRADAS" not in df.columns:
-    st.error("Coluna ENTRADAS não encontrada na planilha")
-    st.stop()
+    # ===============================
+    # VALIDAR COLUNA NECESSÁRIA
+    # ===============================
 
+    if "ENTRADAS" not in df.columns:
+        st.error("Coluna ENTRADAS não encontrada na planilha")
+        st.stop()
 # ===============================
 # CONVERTER PARA NUMÉRICO
 # ===============================
