@@ -57,6 +57,8 @@ with tab_dash:
 # ===============================
 # NORMALIZAR COLUNAS
 # ===============================
+if df is None:
+    st.stop()
 
 df.columns = df.columns.str.strip().str.upper()
 
