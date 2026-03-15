@@ -8,451 +8,226 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
-# ===============================
-# CARREGAR DADOS
-# ===============================
 
-import os
+# =====================================================
+# ABAS
+# =====================================================
 
-st.sidebar.subheader("📂 Dados")
+tab1, tab2 = st.tabs(["📊 Dashboard", "🧠 Calculadora"])
 
-arquivo = st.sidebar.file_uploader(
-    "Carregar planilha de trades",
-    type=["xlsx", "csv"]
-)
+# =====================================================
+# DASHBOARD
+# =====================================================
 
-# ===============================
-# CARREGAMENTO HÍBRIDO
-# ===============================
+with tab1:
 
-if arquivo is not None:
+    # ===============================
+    # CARREGAR DADOS
+    # ===============================
 
-    if arquivo.name.endswith(".csv"):
-        df = pd.read_csv(arquivo)
+    st.sidebar.subheader("📂 Dados")
+
+    arquivo = st.sidebar.file_uploader(
+        "Carregar planilha de trades",
+        type=["xlsx", "csv"]
+    )
+
+    # ===============================
+    # CARREGAMENTO HÍBRIDO
+    # ===============================
+
+    if arquivo is not None:
+
+        if arquivo.name.endswith(".csv"):
+            df = pd.read_csv(arquivo)
+        else:
+            df = pd.read_excel(arquivo)
+
+        st.sidebar.success("Arquivo carregado")
+
     else:
-        df = pd.read_excel(arquivo)
 
-    st.sidebar.success("Arquivo carregado")
+        caminho_padrao = "data/trades_padrao.xlsx"
 
-else:
+        if os.path.exists(caminho_padrao):
 
-    caminho_padrao = "data/trades_padrao.xlsx"
+            df = pd.read_excel(caminho_padrao)
+            st.sidebar.info("Usando base padrão")
 
-    if os.path.exists(caminho_padrao):
+        else:
 
-        df = pd.read_excel(caminho_padrao)
-        st.sidebar.info("Usando base padrão")
+            st.info("Carregue uma planilha para iniciar a análise")
+            st.stop()
 
-    else:
+    # ===============================
+    # NORMALIZAR COLUNAS
+    # ===============================
 
-        st.info("Carregue uma planilha para iniciar a análise")
+    df.columns = df.columns.str.strip().str.upper()
+
+    # ===============================
+    # VALIDAR COLUNA NECESSÁRIA
+    # ===============================
+
+    if "ENTRADAS" not in df.columns:
+        st.error("Coluna ENTRADAS não encontrada na planilha")
         st.stop()
 
-# ===============================
-# NORMALIZAR COLUNAS
-# ===============================
+    # ===============================
+    # CONVERTER PARA NUMÉRICO
+    # ===============================
 
-df.columns = df.columns.str.strip().str.upper()
+    df["ENTRADAS"] = pd.to_numeric(df["ENTRADAS"], errors="coerce")
 
-# ===============================
-# VALIDAR COLUNA NECESSÁRIA
-# ===============================
+    retornos = df["ENTRADAS"].dropna()
 
-if "ENTRADAS" not in df.columns:
-    st.error("Coluna ENTRADAS não encontrada na planilha")
-    st.stop()
+    # ===============================
+    # SELETOR DE AMOSTRA
+    # ===============================
 
-# ===============================
-# CONVERTER PARA NUMÉRICO
-# ===============================
+    st.subheader("Dados")
 
-df["ENTRADAS"] = pd.to_numeric(df["ENTRADAS"], errors="coerce")
-
-retornos = df["ENTRADAS"].dropna()
-
-# ===============================
-# SELETOR DE AMOSTRA
-# ===============================
-
-st.subheader("Dados")
-
-janela = st.radio(
-    "Amostras analisadas",
-    [100, 500, 1000],
-    index=1,
-    horizontal=True
-)
-
-dados_plot = retornos.tail(janela)
-
-# ===============================
-# CÁLCULOS BÁSICOS
-# ===============================
-if (df["ENTRADAS"] > 0).any():
-    odd_media = df.loc[df["ENTRADAS"] > 0, "ENTRADAS"].mean() + 1
-else:
-    odd_media = np.nan
-
-pl = retornos.sum()
-volume = len(retornos)
-
-roi = pl / volume
-dp = retornos.std()
-
-erro = 1.96 / np.sqrt(volume)
-
-# Robustez (ex-Sharpe)
-robustez = roi / dp if dp != 0 else 0
-
-# Expectância
-expectancy = retornos.mean()
-
-# SQN (System Quality Number)
-sqn = (np.sqrt(volume) * expectancy / dp) if dp != 0 else 0
-
-# Kelly (Celeste)
-Celeste = roi / (dp ** 2) if dp != 0 else 0
-stake = Celeste * 0.25
-
-# Curva
-equity = dados_plot.cumsum()
-
-drawdown = equity - equity.cummax()
-max_dd = drawdown.min()
-
-# ===============================
-# RISCO DE RUÍNA
-# ===============================
-
-banca = 0.5
-risk_ruin = np.exp(-2 * roi * banca / (dp ** 2)) if dp != 0 else 1
-
-# ===============================
-# MÉTRICAS AVANÇADAS
-# ===============================
-
-lucros = retornos[retornos > 0].sum()
-perdas = abs(retornos[retornos < 0].sum())
-
-profit_factor = lucros / perdas if perdas != 0 else 0
-
-winrate = (retornos > 0).mean()
-
-prob_5_losses = (1 - winrate) ** 5
-
-ulcer = np.sqrt(np.mean(drawdown ** 2))
-
-score = (
-    robustez * 30 +
-    profit_factor * 20 +
-    expectancy * 30 +
-    (1 - risk_ruin) * 20
-)
-
-# ===============================
-# TÍTULO
-# ===============================
-
-st.title("📊 Validação do Método")
-
-# ===============================
-# CARDS
-# ===============================
-
-c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
-
-c1.metric("ROI", f"{roi*100:.2f}%")
-c2.metric("Volume", volume)
-c3.metric("Drawdown", f"{max_dd:.2f}")
-c4.metric("Robustez", f"{robustez:.2f}")
-c5.metric("Stake Celeste", f"{stake*100:.2f}%")
-c6.metric("P/L", f"{pl:.2f}")
-c7.metric("Odd Média", f"{odd_media:.2f}")
-
-# ===============================
-# GRÁFICOS
-# ===============================
-
-g1, g2 = st.columns(2)
-
-# ===============================
-# CURVA DA BANCA (GLOW AZUL)
-# ===============================
-
-with g1:
-
-    fig = go.Figure()
-
-    # glow externo
-    fig.add_trace(go.Scatter(
-        y=equity,
-        mode="lines",
-        line=dict(width=10, color="rgba(0,150,255,0.15)"),
-        hoverinfo="skip",
-        showlegend=False
-    ))
-
-    # glow médio
-    fig.add_trace(go.Scatter(
-        y=equity,
-        mode="lines",
-        line=dict(width=6, color="rgba(0,150,255,0.35)"),
-        hoverinfo="skip",
-        showlegend=False
-    ))
-
-    # linha principal
-    fig.add_trace(go.Scatter(
-        y=equity,
-        mode="lines",
-        line=dict(width=2, color="#38bdf8"),
-        name="Equity"
-    ))
-
-    fig.update_layout(
-        template="plotly_dark",
-        title="Curva da banca",
-        height=350,
-        margin=dict(l=20,r=20,t=40,b=20),
-        yaxis=dict(
-            range=[equity.min()*1.1, equity.max()*1.1],
-            showgrid=True,
-            gridcolor="rgba(255,255,255,0.1)"
-        ),
-        xaxis=dict(showgrid=False)
+    janela = st.radio(
+        "Amostras analisadas",
+        [100, 500, 1000],
+        index=1,
+        horizontal=True
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    dados_plot = retornos.tail(janela)
 
-# ===============================
-# DRAWDOWN (GLOW VERMELHO)
-# ===============================
+    # ===============================
+    # CÁLCULOS BÁSICOS
+    # ===============================
 
-with g2:
+    if (df["ENTRADAS"] > 0).any():
+        odd_media = df.loc[df["ENTRADAS"] > 0, "ENTRADAS"].mean() + 1
+    else:
+        odd_media = np.nan
 
-    fig2 = go.Figure()
+    pl = retornos.sum()
+    volume = len(retornos)
 
-    # glow externo
-    fig2.add_trace(go.Scatter(
-        y=drawdown,
-        mode="lines",
-        line=dict(width=10, color="rgba(255,0,0,0.15)"),
-        hoverinfo="skip",
-        showlegend=False
-    ))
+    roi = pl / volume
+    dp = retornos.std()
 
-    # glow médio
-    fig2.add_trace(go.Scatter(
-        y=drawdown,
-        mode="lines",
-        line=dict(width=6, color="rgba(255,0,0,0.35)"),
-        hoverinfo="skip",
-        showlegend=False
-    ))
+    erro = 1.96 / np.sqrt(volume)
 
-    # linha principal
-    fig2.add_trace(go.Scatter(
-        y=drawdown,
-        mode="lines",
-        line=dict(width=2, color="#ef4444"),
-        fill="tozeroy",
-        name="Drawdown"
-    ))
+    robustez = roi / dp if dp != 0 else 0
 
-    fig2.update_layout(
-        template="plotly_dark",
-        title="Drawdown",
-        height=350,
-        margin=dict(l=20,r=20,t=40,b=20),
-        yaxis=dict(
-            range=[drawdown.min()*1.1, 0],
-            showgrid=True,
-            gridcolor="rgba(255,255,255,0.1)"
-        ),
-        xaxis=dict(showgrid=False)
+    expectancy = retornos.mean()
+
+    sqn = (np.sqrt(volume) * expectancy / dp) if dp != 0 else 0
+
+    Celeste = roi / (dp ** 2) if dp != 0 else 0
+    stake = Celeste * 0.25
+
+    equity = dados_plot.cumsum()
+
+    drawdown = equity - equity.cummax()
+    max_dd = drawdown.min()
+
+    banca = 0.5
+    risk_ruin = np.exp(-2 * roi * banca / (dp ** 2)) if dp != 0 else 1
+
+    lucros = retornos[retornos > 0].sum()
+    perdas = abs(retornos[retornos < 0].sum())
+
+    profit_factor = lucros / perdas if perdas != 0 else 0
+
+    winrate = (retornos > 0).mean()
+
+    prob_5_losses = (1 - winrate) ** 5
+
+    ulcer = np.sqrt(np.mean(drawdown ** 2))
+
+    score = (
+        robustez * 30 +
+        profit_factor * 20 +
+        expectancy * 30 +
+        (1 - risk_ruin) * 20
     )
 
-    st.plotly_chart(fig2, use_container_width=True)
-    
-# ===============================
-# ESTATÍSTICAS
-# ===============================
+    # ===============================
+    # TÍTULO
+    # ===============================
 
-col1, col2 = st.columns(2)
+    st.title("📊 Validação do Método")
 
-with col1:
+    # ===============================
+    # CARDS
+    # ===============================
 
-    st.subheader("📊 Estatísticas")
+    c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
 
-    cor_pl = "#10b981" if pl > 0 else "#ef4444"
-    cor_roi = "#10b981" if roi > 0 else "#ef4444"
-    cor_dp = "#10b981"
-    cor_ic = "#10b981" if erro < 0.1 else "#f59e0b"
-    cor_celeste = "#38bdf8"
-    cor_ruina = "#ef4444" if risk_ruin > 0.25 else "#f59e0b" if risk_ruin > 0.10 else "#10b981"
+    c1.metric("ROI", f"{roi*100:.2f}%")
+    c2.metric("Volume", volume)
+    c3.metric("Drawdown", f"{max_dd:.2f}")
+    c4.metric("Robustez", f"{robustez:.2f}")
+    c5.metric("Stake Celeste", f"{stake*100:.2f}%")
+    c6.metric("P/L", f"{pl:.2f}")
+    c7.metric("Odd Média", f"{odd_media:.2f}")
 
-    st.markdown(f"**PL:** <span style='color:{cor_pl}'>{pl:.2f}</span>", unsafe_allow_html=True)
-    st.markdown(f"**ROI:** <span style='color:{cor_roi}'>{roi*100:.2f}%</span>", unsafe_allow_html=True)
-    st.markdown(f"**Desvio padrão:** <span style='color:{cor_dp}'>{dp:.2f}</span>", unsafe_allow_html=True)
-    st.markdown(f"**Intervalo confiança:** <span style='color:{cor_ic}'>{erro:.2f}</span>", unsafe_allow_html=True)
+    # ===============================
+    # GRÁFICOS
+    # ===============================
 
-    st.markdown(f"**Robustez:** {robustez:.2f}")
-    st.markdown(f"**Expectância:** {expectancy:.2f}")
-    st.markdown(f"**Profit Factor:** {profit_factor:.2f}")
-    st.markdown(f"**Ulcer Index:** {ulcer:.2f}")
-    st.markdown(f"**SQN:** {sqn:.2f}")
+    g1, g2 = st.columns(2)
 
-    st.markdown(f"**Celeste:** <span style='color:{cor_celeste}'>{Celeste*100:.2f}%</span>", unsafe_allow_html=True)
-    st.markdown(f"**Risco de ruína:** <span style='color:{cor_ruina}'>{risk_ruin*100:.2f}%</span>", unsafe_allow_html=True)
+    with g1:
 
-    st.markdown(f"**Probabilidade de 5 reds seguidos:** {prob_5_losses*100:.2f}%")
-    st.markdown(f"**Score do método:** {score:.2f}")
-    
-# ===============================
-# DIAGNÓSTICO
-# ===============================
+        fig = go.Figure()
 
-with col2:
+        fig.add_trace(go.Scatter(
+            y=equity,
+            mode="lines",
+            line=dict(width=2, color="#38bdf8"),
+            name="Equity"
+        ))
 
-    st.subheader("🛡 Diagnóstico")
+        fig.update_layout(
+            template="plotly_dark",
+            title="Curva da banca",
+            height=350
+        )
 
-    # Amostra
-    if erro < 0.05:
-        st.success("Amostra estatística forte")
-    elif erro < 0.1:
-        st.info("Amostra aceitável")
-    else:
-        st.warning("Amostra pequena")
+        st.plotly_chart(fig, use_container_width=True)
 
-    # Drawdown
-    if max_dd > -0.25:
-        st.success("Drawdown saudável")
-    else:
-        st.warning("Drawdown elevado")
+    with g2:
 
-    # SQN
-    if sqn > 3:
-        st.success("SQN excelente — sistema profissional")
-    elif sqn > 2:
-        st.info("SQN bom — vantagem consistente")
-    elif sqn > 1.6:
-        st.warning("SQN moderado")
-    else:
-        st.error("SQN fraco")
+        fig2 = go.Figure()
 
-    # Profit Factor
-    if profit_factor > 1.7:
-        st.success("Profit Factor excelente")
-    elif profit_factor > 1.3:
-        st.info("Profit Factor saudável")
-    else:
-        st.warning("Profit Factor baixo")
+        fig2.add_trace(go.Scatter(
+            y=drawdown,
+            mode="lines",
+            line=dict(width=2, color="#ef4444"),
+            fill="tozeroy",
+            name="Drawdown"
+        ))
 
-    # Ulcer
-    if ulcer < 3:
-        st.success("Ulcer Baixo — Saudável")
-    elif ulcer < 5:
-        st.info("Ulcer Controlado")
-    elif ulcer < 8:
-        st.warning("Ulcer Moderado")
-    else:
-        st.error("Ulcer Alto")
+        fig2.update_layout(
+            template="plotly_dark",
+            title="Drawdown",
+            height=350
+        )
 
-    # Robustez
-    if robustez < 0.2:
-        st.warning("Robustez Baixa — Stake Conservadora")
-    elif robustez < 0.4:
-        st.info("Robustez Moderada")
-    else:
-        st.success("Robustez Forte")
-                
-st.divider()
-
-# ===============================
-# GAUGE RISCO DE RUÍNA
-# ===============================
-
-st.subheader("💀🎯☠️ Risco de Ruína de 50%")
-
-fig = go.Figure(go.Indicator(
-    mode="gauge+number",
-    value=round(risk_ruin*100, 2),
-    number={'suffix': "%", 'valueformat': ".2f"},
-    title={'text': "Probabilidade (%)"},
-    gauge={
-        'axis': {'range': [0, 100]},
-        'steps': [
-            {'range': [0, 3], 'color': '#10b981'},
-            {'range': [3, 10], 'color': '#facc15'},
-            {'range': [10, 25], 'color': '#fb923c'},
-            {'range': [25, 100], 'color': '#ef4444'}
-        ]
-    }
-))
-
-st.plotly_chart(fig, use_container_width=True)
-
-# ===============================
-# MONTE CARLO
-# ===============================
-
-st.subheader("📈 Simulação Monte Carlo")
-
-simulacoes = 500
-trades = volume
-
-resultados = []
-
-for i in range(simulacoes):
-
-    sim = np.random.choice(dados_plot, size=trades, replace=True)
-    resultados.append(sim.cumsum()[-1])
-
-fig = go.Figure()
-
-fig.add_trace(go.Histogram(
-    x=resultados,
-    nbinsx=50
-))
-
-fig.update_layout(
-    template="plotly_dark",
-    title="Distribuição de Resultados Simulados"
-)
-
-st.plotly_chart(fig, use_container_width=True)
-
-# ===============================
-# SEMÁFORO
-# ===============================
-
-st.subheader("🚦 Semáforo do Método")
-
-if sqn > 2.5 and profit_factor > 1.5 and risk_ruin < 0.05:
-
-    st.success("🟢 MÉTODO PROFISSIONAL")
-
-elif sqn > 1.6 and profit_factor > 1.2:
-
-    st.warning("🟡 MÉTODO OPERÁVEL")
-
-else:
-
-    st.error("🔴 MÉTODO INSTÁVEL")
+        st.plotly_chart(fig2, use_container_width=True)
 
 # =====================================================
-# TRADING TOOLS (SEM ALTERAR O DASHBOARD)
+# CALCULADORA
 # =====================================================
 
-with st.sidebar.expander("🧠 Trading Tools", expanded=False):
+with tab2:
+
+    st.title("🧠 Trading Tools")
 
     st.markdown("### Cashout / Greenbook")
 
     col1, col2, col3 = st.columns(3)
 
-    back_odd = col1.number_input("Back Odd", value=1.80, key="tt_back_odd")
-    back_stake = col2.number_input("Stake", value=100.0, key="tt_back_stake")
-    lay_odd = col3.number_input("Lay Odd", value=2.00, key="tt_lay_odd")
+    back_odd = col1.number_input("Back Odd", value=1.80)
+    back_stake = col2.number_input("Stake", value=100.0)
+    lay_odd = col3.number_input("Lay Odd", value=2.00)
 
     lay_stake = (back_odd * back_stake) / lay_odd
     lucro_loss = lay_stake - back_stake
@@ -462,17 +237,19 @@ with st.sidebar.expander("🧠 Trading Tools", expanded=False):
     c5.metric("Green", f"{lucro_loss:.2f}")
 
     st.markdown("---")
+
     st.markdown("### Dutching")
 
-    n = st.slider("Número de seleções", 2, 6, 3, key="tt_n")
+    n = st.slider("Número de seleções", 2, 6, 3)
 
     odds = []
+
     for i in range(n):
         odds.append(
-            st.number_input(f"Odd {i+1}", value=2.0, key=f"tt_odd_{i}")
+            st.number_input(f"Odd {i+1}", value=2.0, key=f"odd_{i}")
         )
 
-    stake_total = st.number_input("Stake total", value=100.0, key="tt_stake_total")
+    stake_total = st.number_input("Stake total", value=100.0)
 
     inv = [1/o for o in odds]
     soma = sum(inv)
@@ -487,12 +264,13 @@ with st.sidebar.expander("🧠 Trading Tools", expanded=False):
     st.dataframe(df_dutch, use_container_width=True)
 
     st.markdown("---")
+
     st.markdown("### Detector de Value Bet")
 
     c1, c2 = st.columns(2)
 
-    odd = c1.number_input("Odd mercado", value=2.0, key="tt_vb_odd")
-    prob_modelo = c2.number_input("Probabilidade modelo (%)", value=55.0, key="tt_vb_prob")
+    odd = c1.number_input("Odd mercado", value=2.0)
+    prob_modelo = c2.number_input("Probabilidade modelo (%)", value=55.0)
 
     prob_modelo /= 100
     prob_imp = 1/odd
@@ -510,11 +288,12 @@ with st.sidebar.expander("🧠 Trading Tools", expanded=False):
         st.error("Sem valor esperado")
 
     st.markdown("---")
+
     st.markdown("### Simulador de Banca")
 
-    banca = st.number_input("Banca inicial", value=1000.0, key="tt_banca")
-    roi = st.slider("ROI médio (%)", 0.5, 10.0, 3.0, key="tt_roi")
-    trades = st.slider("Trades", 10, 500, 100, key="tt_trades")
+    banca = st.number_input("Banca inicial", value=1000.0)
+    roi = st.slider("ROI médio (%)", 0.5, 10.0, 3.0)
+    trades = st.slider("Trades", 10, 500, 100)
 
     curva = [banca]
 
@@ -533,8 +312,7 @@ with st.sidebar.expander("🧠 Trading Tools", expanded=False):
     fig.update_layout(
         template="plotly_dark",
         title="Crescimento da banca",
-        height=300,
-        margin=dict(l=10, r=10, t=30, b=10)
+        height=300
     )
 
     st.plotly_chart(fig, use_container_width=True)
