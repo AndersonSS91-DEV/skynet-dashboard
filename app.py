@@ -11,12 +11,16 @@ st.set_page_config(
 
 tab_dash, tab_calc = st.tabs(["📊 Dashboard", "🧠 Calculadora"])
 
+aba_ativa = st.session_state.get("_current_tab", "Dashboard")
+
 # =====================================================
 # DASHBOARD
 # =====================================================
 
 with tab_dash:
 
+    if st.session_state.get("_current_tab") == "Calculadora":
+        st.stop()
     st.sidebar.subheader("📂 Dados")
 
     arquivo = st.sidebar.file_uploader(
@@ -443,6 +447,8 @@ else:
 # =====================================================
 
 with tab_calc:
+
+    st.session_state["_current_tab"] = "Calculadora"
 
     st.markdown("### Cashout / Greenbook")
 
