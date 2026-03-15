@@ -48,8 +48,10 @@ with tab_dash:
 
         else:
 
-            st.info("Carregue uma planilha para iniciar a análise")
-            st.stop()
+    st.info("Carregue uma planilha para iniciar a análise")
+
+    if tab_dash:
+        st.stop()
 
     # ===============================
     # NORMALIZAR COLUNAS
