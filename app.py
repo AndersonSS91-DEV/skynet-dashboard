@@ -10,47 +10,50 @@ st.set_page_config(
 )
 
 tab_dash, tab_calc = st.tabs(["📊 Dashboard", "🧠 Calculadora"])
+
+# =====================================================
+# DASHBOARD
+# =====================================================
+
 with tab_dash:
-# ===============================
-# CARREGAR DADOS
-# ===============================
 
-import os
+    # ===============================
+    # CARREGAR DADOS
+    # ===============================
 
-st.sidebar.subheader("📂 Dados")
+    st.sidebar.subheader("📂 Dados")
 
-arquivo = st.sidebar.file_uploader(
-    "Carregar planilha de trades",
-    type=["xlsx", "csv"]
-)
+    arquivo = st.sidebar.file_uploader(
+        "Carregar planilha de trades",
+        type=["xlsx", "csv"]
+    )
 
-# ===============================
-# CARREGAMENTO HÍBRIDO
-# ===============================
+    # ===============================
+    # CARREGAMENTO HÍBRIDO
+    # ===============================
 
-if arquivo is not None:
+    if arquivo is not None:
 
-    if arquivo.name.endswith(".csv"):
-        df = pd.read_csv(arquivo)
-    else:
-        df = pd.read_excel(arquivo)
+        if arquivo.name.endswith(".csv"):
+            df = pd.read_csv(arquivo)
+        else:
+            df = pd.read_excel(arquivo)
 
-    st.sidebar.success("Arquivo carregado")
-
-else:
-
-    caminho_padrao = "data/trades_padrao.xlsx"
-
-    if os.path.exists(caminho_padrao):
-
-        df = pd.read_excel(caminho_padrao)
-        st.sidebar.info("Usando base padrão")
+        st.sidebar.success("Arquivo carregado")
 
     else:
 
-        st.info("Carregue uma planilha para iniciar a análise")
-        st.stop()
+        caminho_padrao = "data/trades_padrao.xlsx"
 
+        if os.path.exists(caminho_padrao):
+
+            df = pd.read_excel(caminho_padrao)
+            st.sidebar.info("Usando base padrão")
+
+        else:
+
+            st.info("Carregue uma planilha para iniciar a análise")
+            st.stop()
 # ===============================
 # NORMALIZAR COLUNAS
 # ===============================
