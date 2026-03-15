@@ -43,23 +43,21 @@ with tab_dash:
 
     else:
 
-        caminho_padrao = "data/trades_padrao.xlsx"
+    caminho_padrao = "data/trades_padrao.xlsx"
 
-        if os.path.exists(caminho_padrao):
+    if os.path.exists(caminho_padrao):
 
-            df = pd.read_excel(caminho_padrao)
-            st.sidebar.info("Usando base padrão")
+        df = pd.read_excel(caminho_padrao)
+        st.sidebar.info("Usando base padrão")
 
-        else:
+    else:
 
-            st.info("Carregue uma planilha para iniciar a análise")
+        st.info("Carregue uma planilha para iniciar a análise")
+        st.stop()
        
 # ===============================
 # NORMALIZAR COLUNAS
 # ===============================
-if df is None:
-    st.stop()
-
 df.columns = df.columns.str.strip().str.upper()
 
 # ===============================
