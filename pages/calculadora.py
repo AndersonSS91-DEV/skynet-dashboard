@@ -1,100 +1,122 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+
+st.set_page_config(layout="wide")
+
+st.title("🧠 Trading Tools")
+
 # =====================================================
-# TRADING TOOLS (SEM ALTERAR O DASHBOARD)
+# CASHOUT
 # =====================================================
 
-with tab_calc:
+st.markdown("### Cashout / Greenbook")
 
-    st.session_state["_current_tab"] = "Calculadora"
+col1, col2, col3 = st.columns(3)
 
-    st.markdown("### Cashout / Greenbook")
+back_odd = col1.number_input("Back Odd", value=1.80)
+back_stake = col2.number_input("Stake", value=100.0)
+lay_odd = col3.number_input("Lay Odd", value=2.00)
 
-    col1, col2, col3 = st.columns(3)
+lay_stake = (back_odd * back_stake) / lay_odd
+lucro_loss = lay_stake - back_stake
 
-    back_odd = col1.number_input("Back Odd", value=1.80, key="tt_back_odd")
-    back_stake = col2.number_input("Stake", value=100.0, key="tt_back_stake")
-    lay_odd = col3.number_input("Lay Odd", value=2.00, key="tt_lay_odd")
+c4, c5 = st.columns(2)
 
-    lay_stake = (back_odd * back_stake) / lay_odd
-    lucro_loss = lay_stake - back_stake
+c4.metric("Stake Lay", f"{lay_stake:.2f}")
+c5.metric("Green", f"{lucro_loss:.2f}")
 
-    c4, c5 = st.columns(2)
-    c4.metric("Stake Lay", f"{lay_stake:.2f}")
-    c5.metric("Green", f"{lucro_loss:.2f}")
+st.markdown("---")
 
-    st.markdown("---")
-    st.markdown("### Dutching")
+# =====================================================
+# DUTCHING
+# =====================================================
 
-    n = st.slider("Número de seleções", 2, 6, 3, key="tt_n")
+st.markdown("### Dutching")
 
-    odds = []
-    for i in range(n):
-        odds.append(
-            st.number_input(f"Odd {i+1}", value=2.0, key=f"tt_odd_{i}")
-        )
+n = st.slider("Número de seleções", 2, 6, 3)
 
-    stake_total = st.number_input("Stake total", value=100.0, key="tt_stake_total")
+odds = []
 
-    inv = [1/o for o in odds]
-    soma = sum(inv)
+for i in range(n):
+    odds.append(st.number_input(f"Odd {i+1}", value=2.0))
 
-    stakes = [(stake_total*(i/soma)) for i in inv]
+stake_total = st.number_input("Stake total", value=100.0)
 
-    df_dutch = pd.DataFrame({
-        "Odd": odds,
-        "Stake": stakes
-    })
+inv = [1/o for o in odds]
 
-    st.dataframe(df_dutch, use_container_width=True)
+soma = sum(inv)
 
-    st.markdown("---")
-    st.markdown("### Detector de Value Bet")
+stakes = [(stake_total*(i/soma)) for i in inv]
 
-    c1, c2 = st.columns(2)
+df_dutch = pd.DataFrame({
+    "Odd": odds,
+    "Stake": stakes
+})
 
-    odd = c1.number_input("Odd mercado", value=2.0, key="tt_vb_odd")
-    prob_modelo = c2.number_input("Probabilidade modelo (%)", value=55.0, key="tt_vb_prob")
+st.dataframe(df_dutch, use_container_width=True)
 
-    prob_modelo /= 100
-    prob_imp = 1/odd
-    ev = (prob_modelo * odd) - 1
+st.markdown("---")
 
-    c3, c4, c5 = st.columns(3)
+# =====================================================
+# VALUE BET
+# =====================================================
 
-    c3.metric("Prob Implícita", f"{prob_imp*100:.2f}%")
-    c4.metric("Prob Modelo", f"{prob_modelo*100:.2f}%")
-    c5.metric("EV", f"{ev:.3f}")
+st.markdown("### Detector de Value Bet")
 
-    if ev > 0:
-        st.success("Aposta com valor esperado positivo")
-    else:
-        st.error("Sem valor esperado")
+c1, c2 = st.columns(2)
 
-    st.markdown("---")
-    st.markdown("### Simulador de Banca")
+odd = c1.number_input("Odd mercado", value=2.0)
+prob_modelo = c2.number_input("Probabilidade modelo (%)", value=55.0)
 
-    banca = st.number_input("Banca inicial", value=1000.0, key="tt_banca")
-    roi = st.slider("ROI médio (%)", 0.5, 10.0, 3.0, key="tt_roi")
-    trades = st.slider("Trades", 10, 500, 100, key="tt_trades")
+prob_modelo /= 100
 
-    curva = [banca]
+prob_imp = 1/odd
 
-    for _ in range(trades):
-        lucro = curva[-1] * (roi/100)
-        curva.append(curva[-1] + lucro)
+ev = (prob_modelo * odd) - 1
 
-    fig = go.Figure()
+c3, c4, c5 = st.columns(3)
 
-    fig.add_trace(go.Scatter(
-        y=curva,
-        mode="lines",
-        line=dict(width=3, color="#38bdf8")
-    ))
+c3.metric("Prob Implícita", f"{prob_imp*100:.2f}%")
+c4.metric("Prob Modelo", f"{prob_modelo*100:.2f}%")
+c5.metric("EV", f"{ev:.3f}")
 
-    fig.update_layout(
-        template="plotly_dark",
-        title="Crescimento da banca",
-        height=300,
-        margin=dict(l=10, r=10, t=30, b=10)
-    )
+if ev > 0:
+    st.success("Aposta com valor esperado positivo")
+else:
+    st.error("Sem valor esperado")
 
-    st.plotly_chart(fig, use_container_width=True)
+st.markdown("---")
+
+# =====================================================
+# SIMULADOR
+# =====================================================
+
+st.markdown("### Simulador de Banca")
+
+banca = st.number_input("Banca inicial", value=1000.0)
+roi = st.slider("ROI médio (%)", 0.5, 10.0, 3.0)
+trades = st.slider("Trades", 10, 500, 100)
+
+curva = [banca]
+
+for _ in range(trades):
+    lucro = curva[-1] * (roi/100)
+    curva.append(curva[-1] + lucro)
+
+fig = go.Figure()
+
+fig.add_trace(go.Scatter(
+    y=curva,
+    mode="lines",
+    line=dict(width=3)
+))
+
+fig.update_layout(
+    template="plotly_dark",
+    title="Crescimento da banca",
+    height=300
+)
+
+st.plotly_chart(fig, use_container_width=True)
