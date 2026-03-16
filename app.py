@@ -5,6 +5,27 @@ import numpy as np
 import plotly.graph_objects as go
 import os
 
+
+st.markdown("""
+<style>
+
+html, body, [class*="css"] {
+    font-size: 17px !important;
+}
+
+label {
+    font-size: 15px !important;
+    font-weight: 600;
+}
+
+input {
+    font-size: 18px !important;
+    font-weight: 600;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
