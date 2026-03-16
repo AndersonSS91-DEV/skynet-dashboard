@@ -4,54 +4,54 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import os
-
-st.markdown("""
-<style>
-
-/* Fonte base do app */
-html, body, [class*="css"] {
-    font-size: 22px !important;
-}
-
-/* Labels (Back Odd, Stake, Lay Odd, etc) */
-label, [data-testid="stWidgetLabel"] {
-    font-size: 22px !important;
-    font-weight: 600 !important;
-}
-
-/* Campos de número (odds, stake etc) */
-[data-baseweb="input"] input {
-    font-size: 24px !important;
-    font-weight: 600 !important;
-}
-
-/* Botões + e - */
-[data-baseweb="input"] button {
-    font-size: 24px !important;
-}
-
-/* Slider */
-[data-baseweb="slider"] {
-    font-size: 22px !important;
-}
-
-/* Métricas (tipo Green, Stake Lay etc) */
-[data-testid="stMetricValue"] {
-    font-size: 28px !important;
-    font-weight: 700 !important;
-}
-
-[data-testid="stMetricLabel"] {
-    font-size: 22px !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+import os
 
 st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
+
+# CSS GLOBAL
+st.markdown("""
+<style>
+
+/* aumenta tudo */
+html {
+    font-size: 20px;
+}
+
+/* labels */
+[data-testid="stWidgetLabel"] {
+    font-size: 20px !important;
+}
+
+/* inputs number */
+[data-baseweb="input"] input {
+    font-size: 26px !important;
+    font-weight: 600 !important;
+}
+
+/* botões + - */
+[data-baseweb="input"] button {
+    font-size: 22px !important;
+}
+
+/* métricas */
+[data-testid="stMetricValue"] {
+    font-size: 32px !important;
+}
+
+[data-testid="stMetricLabel"] {
+    font-size: 20px !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 # ===============================
 # CARREGAR DADOS
 # ===============================
