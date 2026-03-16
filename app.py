@@ -15,37 +15,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-st.markdown("""
-<style>
-
-/* CAMPOS NUMBER INPUT (Odds / Stake) */
-div[data-testid="stNumberInput"] input {
-    font-size: 30px !important;
-    font-weight: 700 !important;
-}
-
-/* BOTÕES + e - */
-div[data-testid="stNumberInput"] button {
-    font-size: 24px !important;
-}
-
-/* LABELS */
-div[data-testid="stNumberInput"] label {
-    font-size: 20px !important;
-}
-
-/* TABELA (dataframe) */
-div[data-testid="stDataFrame"] * {
-    font-size: 20px !important;
-}
-
-/* MÉTRICAS */
-div[data-testid="stMetricValue"] {
-    font-size: 36px !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
 
 # ===============================
 # CARREGAR DADOS
