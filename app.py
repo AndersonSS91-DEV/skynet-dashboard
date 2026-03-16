@@ -19,30 +19,55 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* aumenta tudo */
-html {
-    font-size: 20px;
+/* =========================
+INPUTS NUMÉRICOS (ODDS / STAKE)
+========================= */
+
+div[data-baseweb="input"] input {
+    font-size: 28px !important;
+    font-weight: 700 !important;
 }
 
-/* labels */
+/* botão + e - */
+div[data-baseweb="input"] button {
+    font-size: 24px !important;
+}
+
+/* altura do campo */
+div[data-baseweb="input"] {
+    height: 52px !important;
+}
+
+/* =========================
+LABELS
+========================= */
+
 [data-testid="stWidgetLabel"] {
     font-size: 20px !important;
-}
-
-/* inputs number */
-[data-baseweb="input"] input {
-    font-size: 26px !important;
     font-weight: 600 !important;
 }
 
-/* botões + - */
-[data-baseweb="input"] button {
-    font-size: 22px !important;
+/* =========================
+DATAFRAME (TABELA)
+========================= */
+
+[data-testid="stDataFrame"] div {
+    font-size: 20px !important;
 }
 
-/* métricas */
+/* cabeçalho tabela */
+
+[data-testid="stDataFrame"] thead div {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+}
+
+/* =========================
+METRICS
+========================= */
+
 [data-testid="stMetricValue"] {
-    font-size: 32px !important;
+    font-size: 36px !important;
 }
 
 [data-testid="stMetricLabel"] {
