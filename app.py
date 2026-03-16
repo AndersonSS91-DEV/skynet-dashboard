@@ -15,63 +15,33 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# CSS GLOBAL
 st.markdown("""
 <style>
 
-/* =========================
-INPUTS NUMÉRICOS (ODDS / STAKE)
-========================= */
-
-div[data-baseweb="input"] input {
-    font-size: 28px !important;
+/* CAMPOS NUMBER INPUT (Odds / Stake) */
+div[data-testid="stNumberInput"] input {
+    font-size: 30px !important;
     font-weight: 700 !important;
 }
 
-/* botão + e - */
-div[data-baseweb="input"] button {
+/* BOTÕES + e - */
+div[data-testid="stNumberInput"] button {
     font-size: 24px !important;
 }
 
-/* altura do campo */
-div[data-baseweb="input"] {
-    height: 52px !important;
-}
-
-/* =========================
-LABELS
-========================= */
-
-[data-testid="stWidgetLabel"] {
-    font-size: 20px !important;
-    font-weight: 600 !important;
-}
-
-/* =========================
-DATAFRAME (TABELA)
-========================= */
-
-[data-testid="stDataFrame"] div {
+/* LABELS */
+div[data-testid="stNumberInput"] label {
     font-size: 20px !important;
 }
 
-/* cabeçalho tabela */
-
-[data-testid="stDataFrame"] thead div {
-    font-size: 22px !important;
-    font-weight: 700 !important;
+/* TABELA (dataframe) */
+div[data-testid="stDataFrame"] * {
+    font-size: 20px !important;
 }
 
-/* =========================
-METRICS
-========================= */
-
-[data-testid="stMetricValue"] {
+/* MÉTRICAS */
+div[data-testid="stMetricValue"] {
     font-size: 36px !important;
-}
-
-[data-testid="stMetricLabel"] {
-    font-size: 20px !important;
 }
 
 </style>
