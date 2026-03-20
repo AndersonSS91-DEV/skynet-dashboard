@@ -459,7 +459,7 @@ else:
     st.error("🔴 MÉTODO INSTÁVEL")
 
 # ===============================
-# MONTE CARLO INSTITUCIONAL (OTIMIZADO)
+# MONTE CARLO INSTITUCIONAL (FINAL)
 # ===============================
 
 st.subheader("🏦 Simulação Institucional (1000 trades)")
@@ -467,11 +467,10 @@ st.subheader("🏦 Simulação Institucional (1000 trades)")
 simulacoes = 2000
 trades_simulados = 1000
 
-stake_pct = stake  # já calculado no seu código (~8%)
-
+stake_pct = stake  # ~8%
 banca_inicial = 1000
 
-ret_array = retornos.values  # otimização
+ret_array = retornos.values
 
 resultados_finais = []
 curvas = []
@@ -480,8 +479,6 @@ ruina_count = 0
 for _ in range(simulacoes):
 
     banca = banca_inicial
-
-    # gera todos os resultados de uma vez (muito mais rápido)
     seq = ret_array[np.random.randint(0, len(ret_array), size=trades_simulados)]
 
     curva = []
@@ -490,29 +487,38 @@ for _ in range(simulacoes):
 
         banca *= (1 + stake_pct * r)
 
-        # salva poucas curvas (não trava gráfico)
-        if len(curvas) < 200:
+        # salvar poucas curvas
+        if len(curvas) < 150:
             curva.append(banca)
 
-        # kill switch (evita perder tempo)
+        # kill switch (ruína)
         if banca <= banca_inicial * 0.1:
             ruina_count += 1
             break
 
     resultados_finais.append(banca)
 
-    if len(curvas) < 200:
+    if len(curvas) < 150:
         curvas.append(curva)
 
 # ===============================
-# ESTATÍSTICAS
+# ESTATÍSTICAS CORRETAS
 # ===============================
+
+resultados_finais = np.array(resultados_finais)
 
 p10 = np.percentile(resultados_finais, 10)
 p50 = np.percentile(resultados_finais, 50)
 p90 = np.percentile(resultados_finais, 90)
 
 prob_ruina = ruina_count / simulacoes
+
+# ===============================
+# REMOVER OUTLIERS (P99)
+# ===============================
+
+limite = np.percentile(resultados_finais, 99)
+resultados_plot = resultados_finais[resultados_finais <= limite]
 
 # ===============================
 # CARDS
@@ -526,25 +532,26 @@ c3.metric("P90 (top cenário)", f"R$ {p90:,.0f}")
 c4.metric("Prob. Ruína", f"{prob_ruina*100:.1f}%")
 
 # ===============================
-# HISTOGRAMA
+# HISTOGRAMA (ESCALA LOG)
 # ===============================
 
 fig = go.Figure()
 
 fig.add_trace(go.Histogram(
-    x=resultados_finais,
+    x=resultados_plot,
     nbinsx=50
 ))
 
 fig.update_layout(
     template="plotly_dark",
-    title="Distribuição da Banca Final"
+    title="Distribuição da Banca Final (escala log)",
+    xaxis=dict(type="log")
 )
 
 st.plotly_chart(fig, use_container_width=True)
 
 # ===============================
-# CURVAS (AMOSTRA CONTROLADA)
+# CURVAS (ESCALA LOG)
 # ===============================
 
 fig_curvas = go.Figure()
@@ -560,7 +567,8 @@ for curva in curvas:
 
 fig_curvas.update_layout(
     template="plotly_dark",
-    title="Curvas Simuladas"
+    title="Curvas Simuladas (escala log)",
+    yaxis=dict(type="log")
 )
 
 st.plotly_chart(fig_curvas, use_container_width=True)
