@@ -459,7 +459,7 @@ else:
     st.error("🔴 MÉTODO INSTÁVEL")
 
 # ===============================
-# MONTE CARLO INSTITUCIONAL (FINAL)
+# MONTE CARLO INSTITUCIONAL (FINAL CORRETO)
 # ===============================
 
 st.subheader("🏦 Simulação Institucional (1000 trades)")
@@ -485,16 +485,21 @@ for _ in range(simulacoes):
 
     for r in seq:
 
+        # CÁLCULO CORRETO
         banca += banca * stake_pct * r
 
-        # salvar poucas curvas
-        if len(curvas) < 150:
-            curva.append(banca)
+        # LIMITADOR (EVITA EXPLOSÃO IRREAL)
+        if banca > 100000:
+            banca = 100000
+            break
 
-        # kill switch (ruína)
+        # RUÍNA
         if banca <= banca_inicial * 0.1:
             ruina_count += 1
             break
+
+        if len(curvas) < 150:
+            curva.append(banca)
 
     resultados_finais.append(banca)
 
@@ -502,7 +507,7 @@ for _ in range(simulacoes):
         curvas.append(curva)
 
 # ===============================
-# ESTATÍSTICAS CORRETAS
+# ESTATÍSTICAS
 # ===============================
 
 resultados_finais = np.array(resultados_finais)
@@ -512,13 +517,6 @@ p50 = np.percentile(resultados_finais, 50)
 p90 = np.percentile(resultados_finais, 90)
 
 prob_ruina = ruina_count / simulacoes
-
-# ===============================
-# REMOVER OUTLIERS (P99)
-# ===============================
-
-limite = np.percentile(resultados_finais, 99)
-resultados_plot = resultados_finais[resultados_finais <= limite]
 
 # ===============================
 # CARDS
@@ -532,26 +530,25 @@ c3.metric("P90 (top cenário)", f"R$ {p90:,.0f}")
 c4.metric("Prob. Ruína", f"{prob_ruina*100:.1f}%")
 
 # ===============================
-# HISTOGRAMA (ESCALA LOG)
+# HISTOGRAMA (ESCALA NORMAL)
 # ===============================
 
 fig = go.Figure()
 
 fig.add_trace(go.Histogram(
-    x=resultados_plot,
+    x=resultados_finais,
     nbinsx=50
 ))
 
 fig.update_layout(
     template="plotly_dark",
-    title="Distribuição da Banca Final (escala log)",
-    xaxis=dict(type="log")
+    title="Distribuição da Banca Final"
 )
 
 st.plotly_chart(fig, use_container_width=True)
 
 # ===============================
-# CURVAS (ESCALA LOG)
+# CURVAS
 # ===============================
 
 fig_curvas = go.Figure()
@@ -567,8 +564,9 @@ for curva in curvas:
 
 fig_curvas.update_layout(
     template="plotly_dark",
-    title="Curvas Simuladas (escala log)",
-    yaxis=dict(type="log")
+    title="Curvas Simuladas"
 )
+
+st.plotly_chart(fig_curvas, use_container_width=True)
 
 st.plotly_chart(fig_curvas, use_container_width=True)
