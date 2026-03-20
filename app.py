@@ -485,7 +485,7 @@ for _ in range(simulacoes):
 
     for r in seq:
 
-        banca *= (1 + stake_pct * r)
+        banca += banca * stake_pct * r
 
         # salvar poucas curvas
         if len(curvas) < 150:
