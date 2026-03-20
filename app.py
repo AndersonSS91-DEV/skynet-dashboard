@@ -161,7 +161,17 @@ score = (
 # TÍTULO
 # ===============================
 
-st.title("📊 Validação do Método")
+st.markdown("""
+<style>
+.titulo-principal {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown('<div class="titulo-principal">📊 Validação do Método</div>', unsafe_allow_html=True)
 
 # ===============================
 # CARDS
