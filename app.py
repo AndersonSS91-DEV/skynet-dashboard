@@ -459,7 +459,7 @@ else:
     st.error("🔴 MÉTODO INSTÁVEL")
 
 # ===============================
-# MONTE CARLO LIMPO (SEM CAP)
+# MONTE CARLO INSTITUCIONAL (CORRETO DE VERDADE)
 # ===============================
 
 st.subheader("🏦 Simulação Institucional (1000 trades)")
@@ -485,8 +485,10 @@ for _ in range(simulacoes):
 
     for r in seq:
 
-        banca += banca * stake_pct * r
+        # ✅ MODELO CORRETO (LOG RETURN)
+        banca *= np.exp(stake_pct * r)
 
+        # ruína real
         if banca <= banca_inicial * 0.1:
             ruina_count += 1
             break
@@ -523,17 +525,13 @@ c3.metric("P90 (top cenário)", f"R$ {p90:,.0f}")
 c4.metric("Prob. Ruína", f"{prob_ruina*100:.1f}%")
 
 # ===============================
-# HISTOGRAMA (TRATADO)
+# HISTOGRAMA NORMAL (SEM DISTORÇÃO)
 # ===============================
-
-# remove só os absurdos extremos (sem distorcer tudo)
-limite = np.percentile(resultados_finais, 99.5)
-dados_plot = resultados_finais[resultados_finais <= limite]
 
 fig = go.Figure()
 
 fig.add_trace(go.Histogram(
-    x=dados_plot,
+    x=resultados_finais,
     nbinsx=50
 ))
 
@@ -545,7 +543,7 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 # ===============================
-# CURVAS
+# CURVAS (AGORA LEGÍVEL)
 # ===============================
 
 fig_curvas = go.Figure()
@@ -566,4 +564,3 @@ fig_curvas.update_layout(
 
 st.plotly_chart(fig_curvas, use_container_width=True)
 
-st.plotly_chart(fig_curvas, use_container_width=True)
