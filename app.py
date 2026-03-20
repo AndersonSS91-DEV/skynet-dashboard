@@ -457,3 +457,104 @@ elif sqn > 1.6 and profit_factor > 1.2:
 else:
 
     st.error("🔴 MÉTODO INSTÁVEL")
+
+# ===============================
+# MONTE CARLO INSTITUCIONAL
+# ===============================
+
+st.subheader("🏦 Simulação Institucional (1000 trades)")
+
+simulacoes = 10000
+trades_simulados = 1000
+
+# stake celeste (25%)
+stake_pct = stake  # já vem do seu código (~8.25%)
+
+banca_inicial = 1000
+
+resultados_finais = []
+curvas = []
+ruina_count = 0
+
+for _ in range(simulacoes):
+
+    banca = banca_inicial
+    curva = []
+
+    for _ in range(trades_simulados):
+
+        resultado = np.random.choice(retornos)
+
+        # crescimento composto
+        banca = banca * (1 + stake_pct * resultado)
+
+        curva.append(banca)
+
+        # considera "quase ruína"
+        if banca <= banca_inicial * 0.2:
+            ruina_count += 1
+            break
+
+    resultados_finais.append(banca)
+    curvas.append(curva)
+
+# ===============================
+# ESTATÍSTICAS
+# ===============================
+
+p10 = np.percentile(resultados_finais, 10)
+p50 = np.percentile(resultados_finais, 50)
+p90 = np.percentile(resultados_finais, 90)
+
+prob_ruina = ruina_count / simulacoes
+
+# ===============================
+# RESULTADOS
+# ===============================
+
+c1, c2, c3, c4 = st.columns(4)
+
+c1.metric("P10 (pior cenário)", f"R$ {p10:,.0f}")
+c2.metric("Mediana (P50)", f"R$ {p50:,.0f}")
+c3.metric("P90 (top cenário)", f"R$ {p90:,.0f}")
+c4.metric("Prob. Ruína", f"{prob_ruina*100:.1f}%")
+
+# ===============================
+# HISTOGRAMA
+# ===============================
+
+fig = go.Figure()
+
+fig.add_trace(go.Histogram(
+    x=resultados_finais,
+    nbinsx=60
+))
+
+fig.update_layout(
+    template="plotly_dark",
+    title="Distribuição da Banca Final (1000 trades)"
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# ===============================
+# CURVAS (AMOSTRA)
+# ===============================
+
+fig_curvas = go.Figure()
+
+for curva in curvas[:100]:  # plota só 100 pra não travar
+    fig_curvas.add_trace(go.Scatter(
+        y=curva,
+        mode="lines",
+        line=dict(width=1),
+        opacity=0.2,
+        showlegend=False
+    ))
+
+fig_curvas.update_layout(
+    template="plotly_dark",
+    title="Curvas de Banca Simuladas"
+)
+
+st.plotly_chart(fig_curvas, use_container_width=True)
