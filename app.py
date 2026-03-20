@@ -326,35 +326,35 @@ with col2:
 
     # Amostra
     if erro < 0.05:
-        st.success("Amostra estatística forte")
+        st.success("Amostra Estatística Forte")
     elif erro < 0.1:
-        st.info("Amostra aceitável")
+        st.info("Amostra Aceitável")
     else:
-        st.warning("Amostra pequena")
+        st.warning("Amostra Pequena")
 
     # Drawdown
     if max_dd > -0.25:
-        st.success("Drawdown saudável")
+        st.success("Drawdown Saudável")
     else:
-        st.warning("Drawdown elevado")
+        st.warning("Drawdown Elevado")
 
     # SQN
     if sqn > 3:
-        st.success("SQN excelente — sistema profissional")
+        st.success("SQN Excelente — Sistema Profissional")
     elif sqn > 2:
-        st.info("SQN bom — vantagem consistente")
+        st.info("SQN bom — vantagem Consistente")
     elif sqn > 1.6:
-        st.warning("SQN moderado")
+        st.warning("SQN Moderado")
     else:
-        st.error("SQN fraco")
+        st.error("SQN Fraco")
 
     # Profit Factor
     if profit_factor > 1.7:
-        st.success("Profit Factor excelente")
+        st.success("Profit Factor Excelente")
     elif profit_factor > 1.3:
-        st.info("Profit Factor saudável")
+        st.info("Profit Factor Saudável")
     else:
-        st.warning("Profit Factor baixo")
+        st.warning("Profit Factor Baixo")
 
     # Ulcer
     if ulcer < 3:
