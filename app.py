@@ -459,18 +459,19 @@ else:
     st.error("🔴 MÉTODO INSTÁVEL")
 
 # ===============================
-# MONTE CARLO INSTITUCIONAL
+# MONTE CARLO INSTITUCIONAL (OTIMIZADO)
 # ===============================
 
 st.subheader("🏦 Simulação Institucional (1000 trades)")
 
-simulacoes = 10000
+simulacoes = 2000
 trades_simulados = 1000
 
-# stake celeste (25%)
-stake_pct = stake  # já vem do seu código (~8.25%)
+stake_pct = stake  # já calculado no seu código (~8%)
 
 banca_inicial = 1000
+
+ret_array = retornos.values  # otimização
 
 resultados_finais = []
 curvas = []
@@ -479,24 +480,29 @@ ruina_count = 0
 for _ in range(simulacoes):
 
     banca = banca_inicial
+
+    # gera todos os resultados de uma vez (muito mais rápido)
+    seq = ret_array[np.random.randint(0, len(ret_array), size=trades_simulados)]
+
     curva = []
 
-    for _ in range(trades_simulados):
+    for r in seq:
 
-        resultado = np.random.choice(retornos)
+        banca *= (1 + stake_pct * r)
 
-        # crescimento composto
-        banca = banca * (1 + stake_pct * resultado)
+        # salva poucas curvas (não trava gráfico)
+        if len(curvas) < 200:
+            curva.append(banca)
 
-        curva.append(banca)
-
-        # considera "quase ruína"
-        if banca <= banca_inicial * 0.2:
+        # kill switch (evita perder tempo)
+        if banca <= banca_inicial * 0.1:
             ruina_count += 1
             break
 
     resultados_finais.append(banca)
-    curvas.append(curva)
+
+    if len(curvas) < 200:
+        curvas.append(curva)
 
 # ===============================
 # ESTATÍSTICAS
@@ -509,7 +515,7 @@ p90 = np.percentile(resultados_finais, 90)
 prob_ruina = ruina_count / simulacoes
 
 # ===============================
-# RESULTADOS
+# CARDS
 # ===============================
 
 c1, c2, c3, c4 = st.columns(4)
@@ -527,23 +533,23 @@ fig = go.Figure()
 
 fig.add_trace(go.Histogram(
     x=resultados_finais,
-    nbinsx=60
+    nbinsx=50
 ))
 
 fig.update_layout(
     template="plotly_dark",
-    title="Distribuição da Banca Final (1000 trades)"
+    title="Distribuição da Banca Final"
 )
 
 st.plotly_chart(fig, use_container_width=True)
 
 # ===============================
-# CURVAS (AMOSTRA)
+# CURVAS (AMOSTRA CONTROLADA)
 # ===============================
 
 fig_curvas = go.Figure()
 
-for curva in curvas[:100]:  # plota só 100 pra não travar
+for curva in curvas:
     fig_curvas.add_trace(go.Scatter(
         y=curva,
         mode="lines",
@@ -554,7 +560,7 @@ for curva in curvas[:100]:  # plota só 100 pra não travar
 
 fig_curvas.update_layout(
     template="plotly_dark",
-    title="Curvas de Banca Simuladas"
+    title="Curvas Simuladas"
 )
 
-st.plotly_chart(fig_curvas, use_container_width=True)
+st.plotly_chart(fig_curvas, use_container_width=True)ue)
