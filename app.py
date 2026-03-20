@@ -161,7 +161,7 @@ score = (
 # TÍTULO
 # ===============================
 
-st.title("##📊 Validação do Método")
+st.sidebar.subheader("📊 Validação do Método")
 
 # ===============================
 # CARDS
