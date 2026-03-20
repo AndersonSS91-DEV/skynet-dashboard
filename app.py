@@ -464,7 +464,7 @@ else:
 
 st.subheader("🏦 Simulação Institucional (1000 trades)")
 
-simulacoes = 2000
+simulacoes = 200
 trades_simulados = 1000
 
 stake_pct = stake
