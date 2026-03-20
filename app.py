@@ -563,4 +563,4 @@ fig_curvas.update_layout(
     title="Curvas Simuladas"
 )
 
-st.plotly_chart(fig_curvas, use_container_width=True)ue)
+st.plotly_chart(fig_curvas, use_container_width=True)
