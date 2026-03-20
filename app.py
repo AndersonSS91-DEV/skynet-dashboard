@@ -299,10 +299,10 @@ with col1:
     cor_celeste = "#38bdf8"
     cor_ruina = "#ef4444" if risk_ruin > 0.25 else "#f59e0b" if risk_ruin > 0.10 else "#10b981"
 
-    st.markdown(f"**PL:** <span style='color:{cor_pl}'>{pl:.2f}</span>", unsafe_allow_html=True)
+    st.markdown(f"**P/L:** <span style='color:{cor_pl}'>{pl:.2f}</span>", unsafe_allow_html=True)
     st.markdown(f"**ROI:** <span style='color:{cor_roi}'>{roi*100:.2f}%</span>", unsafe_allow_html=True)
-    st.markdown(f"**Desvio padrão:** <span style='color:{cor_dp}'>{dp:.2f}</span>", unsafe_allow_html=True)
-    st.markdown(f"**Intervalo confiança:** <span style='color:{cor_ic}'>{erro:.2f}</span>", unsafe_allow_html=True)
+    st.markdown(f"**Desvio Padrão:** <span style='color:{cor_dp}'>{dp:.2f}</span>", unsafe_allow_html=True)
+    st.markdown(f"**Intervalo Confiança:** <span style='color:{cor_ic}'>{erro:.2f}</span>", unsafe_allow_html=True)
 
     st.markdown(f"**Robustez:** {robustez:.2f}")
     st.markdown(f"**Expectância:** {expectancy:.2f}")
@@ -311,10 +311,10 @@ with col1:
     st.markdown(f"**SQN:** {sqn:.2f}")
 
     st.markdown(f"**Celeste:** <span style='color:{cor_celeste}'>{Celeste*100:.2f}%</span>", unsafe_allow_html=True)
-    st.markdown(f"**Risco de ruína:** <span style='color:{cor_ruina}'>{risk_ruin*100:.2f}%</span>", unsafe_allow_html=True)
+    st.markdown(f"**Risco de Ruína:** <span style='color:{cor_ruina}'>{risk_ruin*100:.2f}%</span>", unsafe_allow_html=True)
 
-    st.markdown(f"**Probabilidade de 5 reds seguidos:** {prob_5_losses*100:.2f}%")
-    st.markdown(f"**Score do método:** {score:.2f}")
+    st.markdown(f"**Probabilidade de 5 Reds Seguidos:** {prob_5_losses*100:.2f}%")
+    st.markdown(f"**Score do Método:** {score:.2f}")
     
 # ===============================
 # DIAGNÓSTICO
