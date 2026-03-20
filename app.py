@@ -459,7 +459,7 @@ else:
     st.error("🔴 MÉTODO INSTÁVEL")
 
 # ===============================
-# MONTE CARLO INSTITUCIONAL (FINAL CORRETO)
+# MONTE CARLO LIMPO (SEM CAP)
 # ===============================
 
 st.subheader("🏦 Simulação Institucional (1000 trades)")
@@ -467,7 +467,7 @@ st.subheader("🏦 Simulação Institucional (1000 trades)")
 simulacoes = 2000
 trades_simulados = 1000
 
-stake_pct = stake  # ~8%
+stake_pct = stake
 banca_inicial = 1000
 
 ret_array = retornos.values
@@ -485,15 +485,8 @@ for _ in range(simulacoes):
 
     for r in seq:
 
-        # CÁLCULO CORRETO
         banca += banca * stake_pct * r
 
-        # LIMITADOR (EVITA EXPLOSÃO IRREAL)
-        if banca > 100000:
-            banca = 100000
-            break
-
-        # RUÍNA
         if banca <= banca_inicial * 0.1:
             ruina_count += 1
             break
@@ -530,13 +523,17 @@ c3.metric("P90 (top cenário)", f"R$ {p90:,.0f}")
 c4.metric("Prob. Ruína", f"{prob_ruina*100:.1f}%")
 
 # ===============================
-# HISTOGRAMA (ESCALA NORMAL)
+# HISTOGRAMA (TRATADO)
 # ===============================
+
+# remove só os absurdos extremos (sem distorcer tudo)
+limite = np.percentile(resultados_finais, 99.5)
+dados_plot = resultados_finais[resultados_finais <= limite]
 
 fig = go.Figure()
 
 fig.add_trace(go.Histogram(
-    x=resultados_finais,
+    x=dados_plot,
     nbinsx=50
 ))
 
