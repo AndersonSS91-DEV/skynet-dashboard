@@ -52,13 +52,10 @@ back_odd = col3.number_input(
     key="back_odd_saida"
 )
 
-# Responsabilidade do Lay
-responsabilidade = (lay_odd - 1) * lay_stake
+# Stake correta do BACK
+stake_back = (lay_odd * lay_stake) / back_odd
 
-# Stake necessária no BACK
-stake_back = responsabilidade / (back_odd - 1)
-
-# Green
+# Greenbook
 green = lay_stake - stake_back
 
 c4, c5 = st.columns(2)
@@ -67,6 +64,7 @@ c4.metric("Stake Back", f"{stake_back:.2f}")
 c5.metric("Green", f"{green:.2f}")
 
 st.markdown("---")
+
 
 # =====================================================
 # DUTCHING
