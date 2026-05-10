@@ -36,19 +36,19 @@ col1, col2, col3 = st.columns(3)
 
 lay_odd = col1.number_input(
     "Lay Odd",
-    value=2.00,
+    value=12.00,
     key="lay_odd_saida"
 )
 
 lay_stake = col2.number_input(
     "Stake Lay",
-    value=100.0,
+    value=1000.0,
     key="lay_stake_saida"
 )
 
 back_odd = col3.number_input(
     "Back Odd",
-    value=1.80,
+    value=20.00,
     key="back_odd_saida"
 )
 
