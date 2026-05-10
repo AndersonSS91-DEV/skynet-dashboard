@@ -27,7 +27,7 @@ c5.metric("Green", f"{lucro_loss:.2f}")
 st.markdown("---")
 
 # =====================================================
-# SAIDA DO LAY (LAY -> BACK)
+# SAIDA DO LAY (RESPONSABILIDADE FIXA)
 # =====================================================
 
 st.markdown("### Saida do Lay / Greenbook")
@@ -40,10 +40,10 @@ lay_odd = col1.number_input(
     key="lay_odd_saida"
 )
 
-lay_stake = col2.number_input(
-    "Stake Lay",
+responsabilidade = col2.number_input(
+    "Responsabilidade",
     value=1000.0,
-    key="lay_stake_saida"
+    key="responsabilidade_saida"
 )
 
 back_odd = col3.number_input(
@@ -52,11 +52,13 @@ back_odd = col3.number_input(
     key="back_odd_saida"
 )
 
-# Stake correta do BACK
-stake_back = (lay_odd * lay_stake) / back_odd
+# Lucro potencial do lay
+lucro_lay = responsabilidade / (lay_odd - 1)
 
-# Greenbook
-green = lay_stake - stake_back
+# Stake necessária no back
+stake_back = (responsabilidade + lucro_lay) / back_odd
+
+green = lucro_lay - stake_back
 
 c4, c5 = st.columns(2)
 
@@ -64,7 +66,6 @@ c4.metric("Stake Back", f"{stake_back:.2f}")
 c5.metric("Green", f"{green:.2f}")
 
 st.markdown("---")
-
 
 # =====================================================
 # DUTCHING
