@@ -52,13 +52,18 @@ back_odd = col3.number_input(
     key="back_odd_saida"
 )
 
-back_stake = (lay_odd * lay_stake) / back_odd
+# Responsabilidade do Lay
+responsabilidade = (lay_odd - 1) * lay_stake
 
-green = lay_stake - back_stake
+# Stake necessária no BACK
+stake_back = responsabilidade / (back_odd - 1)
+
+# Green
+green = lay_stake - stake_back
 
 c4, c5 = st.columns(2)
 
-c4.metric("Stake Back", f"{back_stake:.2f}")
+c4.metric("Stake Back", f"{stake_back:.2f}")
 c5.metric("Green", f"{green:.2f}")
 
 st.markdown("---")
