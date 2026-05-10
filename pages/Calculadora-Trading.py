@@ -27,6 +27,43 @@ c5.metric("Green", f"{lucro_loss:.2f}")
 st.markdown("---")
 
 # =====================================================
+# SAIDA DO LAY (LAY -> BACK)
+# =====================================================
+
+st.markdown("### Saida do Lay / Greenbook")
+
+col1, col2, col3 = st.columns(3)
+
+lay_odd = col1.number_input(
+    "Lay Odd",
+    value=2.00,
+    key="lay_odd_saida"
+)
+
+lay_stake = col2.number_input(
+    "Stake Lay",
+    value=100.0,
+    key="lay_stake_saida"
+)
+
+back_odd = col3.number_input(
+    "Back Odd",
+    value=1.80,
+    key="back_odd_saida"
+)
+
+back_stake = (lay_odd * lay_stake) / back_odd
+
+green = lay_stake - back_stake
+
+c4, c5 = st.columns(2)
+
+c4.metric("Stake Back", f"{back_stake:.2f}")
+c5.metric("Green", f"{green:.2f}")
+
+st.markdown("---")
+
+# =====================================================
 # DUTCHING
 # =====================================================
 
