@@ -76,6 +76,8 @@ if "ENTRADAS" not in df.columns:
 
 df["ENTRADAS"] = pd.to_numeric(df["ENTRADAS"], errors="coerce")
 
+df = df.sort_values("Data")
+
 retornos = df["ENTRADAS"].dropna()
 
 # ===============================
@@ -91,7 +93,7 @@ janela = st.radio(
     horizontal=True
 )
 
-dados_plot = retornos.tail(janela)
+dados_plot = retornos.iloc[:janela]
 
 # ===============================
 # CÁLCULOS BÁSICOS
