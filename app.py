@@ -76,12 +76,11 @@ if "ENTRADAS" not in df.columns:
 
 df["ENTRADAS"] = pd.to_numeric(df["ENTRADAS"], errors="coerce")
 
+# ordena cronologicamente se existir coluna DATA
 if "DATA" in df.columns:
     df = df.sort_values("DATA")
 
 retornos = df["ENTRADAS"].dropna()
-
-dados_plot = retornos.iloc[:janela]
 
 # ===============================
 # SELETOR DE AMOSTRA
@@ -91,12 +90,19 @@ st.subheader("Dados")
 
 janela = st.radio(
     "Amostras analisadas",
-    [25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500, 750, 1000, 1250, 1500, 1750, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000, 7000, 8000, 9000, 10000],
+    [25, 50, 75, 100, 125, 150, 175, 200, 225, 250,
+     275, 300, 325, 350, 375, 400, 425, 450, 475,
+     500, 750, 1000, 1250, 1500, 1750, 2000, 2500,
+     3000, 3500, 4000, 4500, 5000, 6000, 7000,
+     8000, 9000, 10000],
     index=2,
     horizontal=True
 )
 
-dados_plot = retornos.tail(janela)
+# pega os PRIMEIROS trades da sequência
+dados_plot = retornos.iloc[:janela]
+
+
 
 # ===============================
 # CÁLCULOS BÁSICOS
