@@ -86,8 +86,8 @@ st.subheader("Dados")
 
 janela = st.radio(
     "Amostras analisadas",
-    [100, 500, 1000],
-    index=1,
+    [100, 500, 1000, 2500, 5000, 7500, 10000],
+    index=2,
     horizontal=True
 )
 
