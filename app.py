@@ -76,7 +76,12 @@ if "ENTRADAS" not in df.columns:
 
 df["ENTRADAS"] = pd.to_numeric(df["ENTRADAS"], errors="coerce")
 
+if "DATA" in df.columns:
+    df = df.sort_values("DATA")
+
 retornos = df["ENTRADAS"].dropna()
+
+dados_plot = retornos.iloc[:janela]
 
 # ===============================
 # SELETOR DE AMOSTRA
