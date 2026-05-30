@@ -230,7 +230,6 @@ ulcer = np.sqrt(
 # ===============================
 # RISCO DE RUÍNA
 # ===============================
-
 st.subheader("💀🎯☠️ Risco de Ruína")
 
 simulacoes_ruina = 1000
@@ -247,13 +246,8 @@ for _ in range(simulacoes_ruina):
 
     curva = pd.Series(sim).cumsum()
 
-    # ===============================
-    # DRAWDOWN PERCENTUAL
-    # ===============================
-
     curva_max = curva.cummax()
 
-    # evita divisão por zero
     curva_max[curva_max == 0] = 1e-9
 
     dd_ruina = (
@@ -261,73 +255,14 @@ for _ in range(simulacoes_ruina):
         curva_max
     )
 
-    # ===============================
-    # RUÍNA = PERDER 50% DA BANCA
-    # ===============================
+    # RUÍNA = 50% DE DRAWDOWN
 
     if dd_ruina.min() <= -0.50:
 
         ruinas += 1
 
-# ===============================
-# RESULTADO FINAL
-# ===============================
-
 risk_ruin = (
     ruinas / simulacoes_ruina
-)
-
-# ===============================
-# GAUGE
-# ===============================
-
-fig = go.Figure(go.Indicator(
-    mode="gauge+number",
-    value=round(risk_ruin * 100, 2),
-
-    number={
-        'suffix': "%",
-        'valueformat': ".2f"
-    },
-
-    title={
-        'text': "Probabilidade (%)"
-    },
-
-    gauge={
-
-        'axis': {
-            'range': [0, 100]
-        },
-
-        'steps': [
-
-            {
-                'range': [0, 3],
-                'color': '#10b981'
-            },
-
-            {
-                'range': [3, 10],
-                'color': '#facc15'
-            },
-
-            {
-                'range': [10, 25],
-                'color': '#fb923c'
-            },
-
-            {
-                'range': [25, 100],
-                'color': '#ef4444'
-            }
-        ]
-    }
-))
-
-st.plotly_chart(
-    fig,
-    use_container_width=True
 )
 
 # ===============================
