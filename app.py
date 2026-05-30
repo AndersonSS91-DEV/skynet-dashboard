@@ -230,11 +230,16 @@ ulcer = np.sqrt(
 # ===============================
 # RISCO DE RUÍNA
 # ===============================
+
 st.subheader("💀🎯☠️ Risco de Ruína")
 
 simulacoes_ruina = 1000
 
 ruinas = 0
+
+# capital inicial evita explosão
+# do drawdown no começo da curva
+capital_inicial = 100
 
 for _ in range(simulacoes_ruina):
 
@@ -244,22 +249,44 @@ for _ in range(simulacoes_ruina):
         replace=True
     )
 
-    curva = pd.Series(sim).cumsum()
+    # ===============================
+    # CURVA COM CAPITAL INICIAL
+    # ===============================
+
+    curva = (
+        capital_inicial +
+        pd.Series(sim).cumsum()
+    )
+
+    # ===============================
+    # TOPO HISTÓRICO
+    # ===============================
 
     curva_max = curva.cummax()
 
+    # proteção
     curva_max[curva_max == 0] = 1e-9
+
+    # ===============================
+    # DRAWDOWN %
+    # ===============================
 
     dd_ruina = (
         (curva - curva_max) /
         curva_max
     )
 
-    # RUÍNA = 50% DE DRAWDOWN
+    # ===============================
+    # RUÍNA = DD MAIOR QUE 50%
+    # ===============================
 
     if dd_ruina.min() <= -0.50:
 
         ruinas += 1
+
+# ===============================
+# RESULTADO FINAL
+# ===============================
 
 risk_ruin = (
     ruinas / simulacoes_ruina
