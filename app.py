@@ -451,7 +451,7 @@ fig.add_trace(
         fill="tozeroy",
         line=dict(
             width=2,
-            color="#ef4444"
+            color="#facc15"
         ),
         name="Drawdown %"
     ),
