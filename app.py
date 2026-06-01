@@ -231,15 +231,13 @@ ulcer = np.sqrt(
 # RISCO DE RUÍNA
 # ===============================
 
-st.subheader("💀🎯☠️ Risco de Ruína")
-
 simulacoes_ruina = 1000
 
 ruinas = 0
 
 # capital inicial evita explosão
 # do drawdown no começo da curva
-capital_inicial = 100
+capital_inicial = 1000
 
 for _ in range(simulacoes_ruina):
 
