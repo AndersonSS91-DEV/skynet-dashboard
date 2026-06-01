@@ -403,132 +403,113 @@ c7.metric(
 # GRÁFICOS
 # ===============================
 
-g1, g2 = st.columns(2)
+from plotly.subplots import make_subplots
 
 # ===============================
-# CURVA
+# GRÁFICO ÚNICO
 # ===============================
 
-with g1:
+st.subheader("📈 Equity + Drawdown")
 
-    fig = go.Figure()
+fig = make_subplots(
+    rows=2,
+    cols=1,
+    shared_xaxes=True,
+    vertical_spacing=0.03,
+    row_heights=[0.75, 0.25]
+)
 
-    fig.add_trace(go.Scatter(
+# ===============================
+# EQUITY
+# ===============================
+
+fig.add_trace(
+
+    go.Scatter(
         y=equity,
         mode="lines",
         line=dict(
-            width=10,
-            color="rgba(0,150,255,0.15)"
-        ),
-        hoverinfo="skip",
-        showlegend=False
-    ))
-
-    fig.add_trace(go.Scatter(
-        y=equity,
-        mode="lines",
-        line=dict(
-            width=6,
-            color="rgba(0,150,255,0.35)"
-        ),
-        hoverinfo="skip",
-        showlegend=False
-    ))
-
-    fig.add_trace(go.Scatter(
-        y=equity,
-        mode="lines",
-        line=dict(
-            width=2,
+            width=3,
             color="#38bdf8"
         ),
         name="Equity"
-    ))
+    ),
 
-    fig.update_layout(
-        template="plotly_dark",
-        title="Curva da banca",
-        height=350,
-        margin=dict(
-            l=20,
-            r=20,
-            t=40,
-            b=20
-        ),
-        xaxis=dict(showgrid=False),
-        yaxis=dict(
-            showgrid=True,
-            gridcolor="rgba(255,255,255,0.1)"
-        )
-    )
-
-    st.plotly_chart(
-        fig,
-        use_container_width=True
-    )
+    row=1,
+    col=1
+)
 
 # ===============================
 # DRAWDOWN
 # ===============================
 
-with g2:
+fig.add_trace(
 
-    fig2 = go.Figure()
-
-    fig2.add_trace(go.Scatter(
+    go.Scatter(
         y=drawdown * 100,
         mode="lines",
-        line=dict(
-            width=10,
-            color="rgba(255,0,0,0.15)"
-        ),
-        hoverinfo="skip",
-        showlegend=False
-    ))
-
-    fig2.add_trace(go.Scatter(
-        y=drawdown * 100,
-        mode="lines",
-        line=dict(
-            width=6,
-            color="rgba(255,0,0,0.35)"
-        ),
-        hoverinfo="skip",
-        showlegend=False
-    ))
-
-    fig2.add_trace(go.Scatter(
-        y=drawdown * 100,
-        mode="lines",
+        fill="tozeroy",
         line=dict(
             width=2,
             color="#ef4444"
         ),
-        fill="tozeroy",
-        name="Drawdown"
-    ))
+        name="Drawdown %"
+    ),
 
-    fig2.update_layout(
-        template="plotly_dark",
-        title="Drawdown (%)",
-        height=350,
-        margin=dict(
-            l=20,
-            r=20,
-            t=40,
-            b=20
-        ),
-        xaxis=dict(showgrid=False),
-        yaxis=dict(
-            showgrid=True,
-            gridcolor="rgba(255,255,255,0.1)"
-        )
-    )
+    row=2,
+    col=1
+)
 
-    st.plotly_chart(
-        fig2,
-        use_container_width=True
-    )
+# ===============================
+# LAYOUT
+# ===============================
+
+fig.update_layout(
+
+    template="plotly_dark",
+
+    height=700,
+
+    margin=dict(
+        l=20,
+        r=20,
+        t=40,
+        b=20
+    ),
+
+    hovermode="x unified",
+
+    showlegend=False
+)
+
+# ===============================
+# EIXOS
+# ===============================
+
+fig.update_yaxes(
+    title_text="Equity",
+    row=1,
+    col=1
+)
+
+fig.update_yaxes(
+    title_text="DD %",
+    row=2,
+    col=1
+)
+
+fig.update_xaxes(
+    showgrid=False
+)
+
+# ===============================
+# PLOT
+# ===============================
+
+st.plotly_chart(
+    fig,
+    use_container_width=True
+)
 
 # ===============================
 # ESTATÍSTICAS
