@@ -183,7 +183,12 @@ stake = Celeste * 0.25
 # CURVA
 # ===============================
 
-equity = retornos_calc.cumsum()
+capital_inicial = 1000
+
+equity = (
+    capital_inicial +
+    retornos_calc.cumsum()
+)
 
 equity_max = equity.cummax()
 
