@@ -121,6 +121,9 @@ opcoes_validas = [
     x for x in opcoes if x <= max_disponivel
 ]
 
+if max_disponivel not in opcoes_validas:
+    opcoes_validas.append(max_disponivel)
+
 if len(opcoes_validas) == 0:
     opcoes_validas = [max_disponivel]
 
