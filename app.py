@@ -242,7 +242,7 @@ ruinas = 0
 
 # capital inicial evita explosão
 # do drawdown no começo da curva
-capital_inicial = 1000
+capital_inicial = 6000
 
 for _ in range(simulacoes_ruina):
 
