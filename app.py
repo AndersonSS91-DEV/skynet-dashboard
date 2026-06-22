@@ -512,22 +512,49 @@ fig.update_layout(
 # EIXOS
 # ===============================
 
-equity_max_plot = equity.max()
+equity_min = equity.min()
+equity_max = equity.max()
 
-import math
+amplitude = equity_max - equity_min
 
-limite_y = math.ceil(equity.max() / 200) * 200
+# margem visual
+margem = amplitude * 0.10
+
+# evita erro quando amplitude = 0
+if margem == 0:
+    margem = 10
+
+# escala automática
+if amplitude < 200:
+    dtick = 20
+elif amplitude < 500:
+    dtick = 50
+elif amplitude < 1000:
+    dtick = 100
+else:
+    dtick = 200
 
 fig.update_yaxes(
     title_text="Equity",
-    range=[0, limite_y],
-    dtick=200,
+    range=[
+        equity_min - margem,
+        equity_max + margem
+    ],
+    dtick=dtick,
     row=1,
     col=1
 )
 
+# Drawdown
+dd_min = drawdown.min() * 100
+
 fig.update_yaxes(
     title_text="DD %",
+    range=[
+        dd_min * 1.10,
+        0
+    ],
+    dtick=0.5,
     row=2,
     col=1
 )
