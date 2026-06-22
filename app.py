@@ -614,7 +614,7 @@ with col1:
     )
     
     st.markdown(
-        f"**Away %:** {away_red_pct*100:.2f}%"
+        f"**Controle(-)%:** {away_red_pct*100:.2f}%"
     )
     
     st.markdown(
@@ -686,13 +686,13 @@ with col2:
         st.warning("Profit Factor Baixo")
 
     if away_red_pct < 0.13:
-        st.success("Away % Excelente")
+        st.success("Controle(-)% Excelente")
     elif away_red_pct < 0.15:
-        st.info("Away % Saudável")
+        st.info("Controle(-)% Saudável")
     elif away_red_pct < 0.17:
-        st.warning("Away % Atenção")
+        st.warning("Controle(-)% Atenção")
     else:
-        st.error("Away % Crítico")
+        st.error("Controle(-)% Crítico")
         
     if ulcer < 3:
         st.success("Ulcer Baixo — Saudável")
