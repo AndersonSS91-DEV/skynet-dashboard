@@ -507,13 +507,16 @@ fig.update_layout(
     showlegend=False
 )
 
+
 # ===============================
 # EIXOS
 # ===============================
 
+equity_max_plot = equity.max()
+
 fig.update_yaxes(
     title_text="Equity",
-    range=[0, equity_max_plot * 1.10],  # 10% de folga
+    range=[0, equity_max_plot * 1.10],
     row=1,
     col=1
 )
