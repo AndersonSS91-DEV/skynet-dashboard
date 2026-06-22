@@ -227,6 +227,19 @@ winrate = (
     retornos_calc > 0
 ).mean()
 
+# ==================================
+# AWAY % (REDS)
+# ==================================
+
+reds = (retornos_calc < 0).sum()
+
+away_red_pct = (
+    reds / volume
+    if volume > 0 else 0
+)
+
+home_not_lose = 1 - away_red_pct
+
 prob_5_losses = (
     (1 - winrate) ** 5
 )
@@ -368,7 +381,7 @@ st.markdown(
 # CARDS
 # ===============================
 
-c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
+c1, c2, c3, c4, c5, c6, c7, c8 = st.columns(8)
 
 c1.metric(
     "Yield Médio",
@@ -404,6 +417,12 @@ c7.metric(
     "Odd Média",
     f"{odd_media:.2f}"
 )
+
+c8.metric(
+    "Controle(-)%",
+    f"{away_red_pct*100:.2f}%"
+)
+
 
 # ===============================
 # GRÁFICOS
@@ -494,6 +513,7 @@ fig.update_layout(
 
 fig.update_yaxes(
     title_text="Equity",
+    range=[0, equity_max_plot * 1.10],  # 10% de folga
     row=1,
     col=1
 )
@@ -557,7 +577,15 @@ with col1:
     st.markdown(
         f"**Profit Factor:** {profit_factor:.2f}"
     )
-
+    
+    st.markdown(
+        f"**Away %:** {away_red_pct*100:.2f}%"
+    )
+    
+    st.markdown(
+        f"**Home Não Perde:** {home_not_lose*100:.2f}%"
+    )
+    
     st.markdown(
         f"**Ulcer Index:** {ulcer:.2f}"
     )
@@ -622,6 +650,15 @@ with col2:
     else:
         st.warning("Profit Factor Baixo")
 
+    if away_red_pct < 0.13:
+        st.success("Away % Excelente")
+    elif away_red_pct < 0.15:
+        st.info("Away % Saudável")
+    elif away_red_pct < 0.17:
+        st.warning("Away % Atenção")
+    else:
+        st.error("Away % Crítico")
+        
     if ulcer < 3:
         st.success("Ulcer Baixo — Saudável")
     elif ulcer < 5:
