@@ -186,7 +186,7 @@ stake = Celeste * 0.25
 # CURVA
 # ===============================
 
-capital_inicial = 1000
+capital_inicial = 100
 
 equity = (
     capital_inicial +
@@ -239,13 +239,13 @@ ulcer = np.sqrt(
 # RISCO DE RUÍNA
 # ===============================
 
-simulacoes_ruina = 1000
+simulacoes_ruina = 100
 
 ruinas = 0
 
 # capital inicial evita explosão
 # do drawdown no começo da curva
-capital_inicial = 6000
+capital_inicial = 12000
 
 for _ in range(simulacoes_ruina):
 
