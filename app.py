@@ -514,9 +514,14 @@ fig.update_layout(
 
 equity_max_plot = equity.max()
 
+import math
+
+limite_y = math.ceil(equity.max() / 200) * 200
+
 fig.update_yaxes(
     title_text="Equity",
-    range=[0, equity_max_plot * 1.10],
+    range=[0, limite_y],
+    dtick=200,
     row=1,
     col=1
 )
