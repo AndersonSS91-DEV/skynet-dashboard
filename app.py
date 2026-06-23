@@ -446,7 +446,76 @@ c8.metric(
 
 from plotly.subplots import make_subplots
 
+# ===============================
+# GRÁFICO
+# ===============================
 
+st.subheader("📈 Equity + Drawdown")
+
+from plotly.subplots import make_subplots
+
+fig = make_subplots(
+    rows=2,
+    cols=1,
+    shared_xaxes=True,
+    vertical_spacing=0.05,
+    row_heights=[0.7, 0.3]
+)
+
+# Equity
+fig.add_trace(
+    go.Scatter(
+        y=equity,
+        mode="lines",
+        name="Equity",
+        line=dict(
+            color="#38bdf8",
+            width=3
+        )
+    ),
+    row=1,
+    col=1
+)
+
+# Drawdown
+fig.add_trace(
+    go.Scatter(
+        y=drawdown * 100,
+        mode="lines",
+        fill="tozeroy",
+        fillcolor="rgba(250,204,21,0.20)",
+        line=dict(
+            color="#facc15",
+            width=2
+        ),
+        name="Drawdown"
+    ),
+    row=2,
+    col=1
+)
+
+fig.update_layout(
+    template="plotly_dark",
+    height=700,
+    showlegend=False
+)
+
+fig.update_yaxes(
+    title_text="Equity",
+    row=1,
+    col=1
+)
+
+fig.update_yaxes(
+    title_text="Drawdown %",
+    row=2,
+    col=1
+)
+
+st.plotly_chart(
+    fig,
+    use_container_width=True
+)
 # ===============================
 # ESTATÍSTICAS
 # ===============================
