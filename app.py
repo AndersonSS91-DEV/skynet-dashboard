@@ -376,6 +376,22 @@ st.markdown(
     '<div class="titulo-principal">📊 Validação do Método</div>',
     unsafe_allow_html=True
 )
+st.markdown("""
+<style>
+
+[data-testid="metric-container"]{
+    background:#111827;
+    border:1px solid #1F2937;
+    padding:12px;
+    border-radius:14px;
+}
+
+[data-testid="metric-container"]:hover{
+    border:1px solid #00FF88;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 # ===============================
 # CARDS
@@ -431,85 +447,119 @@ c8.metric(
 from plotly.subplots import make_subplots
 
 # ===============================
-# GRÁFICO ÚNICO
+
+# GRÁFICO PREMIUM RTS LABS
+
 # ===============================
 
-st.subheader("📈 Equity + Drawdown")
+st.subheader("📈 Equity Curve")
+
+from plotly.subplots import make_subplots
 
 fig = make_subplots(
-    rows=2,
-    cols=1,
-    shared_xaxes=True,
-    vertical_spacing=0.03,
-    row_heights=[0.75, 0.25]
+rows=2,
+cols=1,
+shared_xaxes=True,
+vertical_spacing=0.03,
+row_heights=[0.75, 0.25]
 )
 
 # ===============================
-# EQUITY
+
+# GLOW DA EQUITY
+
 # ===============================
 
 fig.add_trace(
 
-    go.Scatter(
-        y=equity,
-        mode="lines",
-        line=dict(
-            width=3,
-            color="#38bdf8"
-        ),
-        name="Equity"
+```
+go.Scatter(
+    y=equity,
+    mode="lines",
+
+    line=dict(
+        width=12,
+        color="rgba(0,255,136,0.15)"
     ),
 
-    row=1,
-    col=1
-)
-
-# ===============================
-# DRAWDOWN
-# ===============================
-
-fig.add_trace(
-
-    go.Scatter(
-        y=drawdown * 100,
-        mode="lines",
-        fill="tozeroy",
-        line=dict(
-            width=2,
-            color="#facc15"
-        ),
-        name="Drawdown %"
-    ),
-
-    row=2,
-    col=1
-)
-
-# ===============================
-# LAYOUT
-# ===============================
-
-fig.update_layout(
-
-    template="plotly_dark",
-
-    height=700,
-
-    margin=dict(
-        l=20,
-        r=20,
-        t=40,
-        b=20
-    ),
-
-    hovermode="x unified",
-
+    hoverinfo="skip",
     showlegend=False
+),
+
+row=1,
+col=1
+```
+
 )
 
+# ===============================
+
+# EQUITY PRINCIPAL
 
 # ===============================
-# EIXOS
+
+fig.add_trace(
+
+```
+go.Scatter(
+
+    y=equity,
+
+    mode="lines",
+
+    line=dict(
+        width=4,
+        color="#00FF88"
+    ),
+
+    name="Equity"
+
+),
+
+row=1,
+col=1
+```
+
+)
+
+# ===============================
+
+# DRAWDOWN PREMIUM
+
+# ===============================
+
+fig.add_trace(
+
+```
+go.Scatter(
+
+    y=drawdown * 100,
+
+    mode="lines",
+
+    fill="tozeroy",
+
+    fillcolor="rgba(239,68,68,0.20)",
+
+    line=dict(
+        width=2,
+        color="#EF4444"
+    ),
+
+    name="Drawdown %"
+
+),
+
+row=2,
+col=1
+```
+
+)
+
+# ===============================
+
+# ESCALA AUTOMÁTICA EQUITY
+
 # ===============================
 
 equity_min = equity.min()
@@ -517,60 +567,113 @@ equity_max = equity.max()
 
 amplitude = equity_max - equity_min
 
-# margem visual
 margem = amplitude * 0.10
 
-# evita erro quando amplitude = 0
 if margem == 0:
-    margem = 10
+margem = 10
 
-# escala automática
 if amplitude < 200:
-    dtick = 20
+dtick = 20
 elif amplitude < 500:
-    dtick = 50
+dtick = 50
 elif amplitude < 1000:
-    dtick = 100
+dtick = 100
 else:
-    dtick = 200
+dtick = 200
 
 fig.update_yaxes(
-    title_text="Equity",
-    range=[
-        equity_min - margem,
-        equity_max + margem
-    ],
-    dtick=dtick,
-    row=1,
-    col=1
+title_text="Equity",
+range=[
+equity_min - margem,
+equity_max + margem
+],
+dtick=dtick,
+showgrid=True,
+gridcolor="rgba(255,255,255,0.05)",
+zeroline=False,
+row=1,
+col=1
 )
 
-# Drawdown
+# ===============================
+
+# ESCALA DRAWDOWN
+
+# ===============================
+
 dd_min = drawdown.min() * 100
 
 fig.update_yaxes(
-    title_text="DD %",
-    range=[
-        dd_min * 1.10,
-        0
-    ],
-    dtick=0.5,
-    row=2,
-    col=1
-)
-
-fig.update_xaxes(
-    showgrid=False
+title_text="Drawdown %",
+range=[
+dd_min * 1.10,
+0
+],
+dtick=0.5,
+showgrid=True,
+gridcolor="rgba(255,255,255,0.05)",
+zeroline=False,
+row=2,
+col=1
 )
 
 # ===============================
+
+# EIXO X
+
+# ===============================
+
+fig.update_xaxes(
+showgrid=True,
+gridcolor="rgba(255,255,255,0.05)",
+zeroline=False
+)
+
+# ===============================
+
+# LAYOUT RTS PREMIUM
+
+# ===============================
+
+fig.update_layout(
+
+```
+height=720,
+
+paper_bgcolor="#0B1220",
+plot_bgcolor="#111827",
+
+hovermode="x unified",
+
+showlegend=False,
+
+margin=dict(
+    l=20,
+    r=20,
+    t=40,
+    b=20
+),
+
+font=dict(
+    family="Inter",
+    size=13,
+    color="#E5E7EB"
+)
+```
+
+)
+
+# ===============================
+
 # PLOT
+
 # ===============================
 
 st.plotly_chart(
-    fig,
-    use_container_width=True
+fig,
+use_container_width=True
 )
+
 
 # ===============================
 # ESTATÍSTICAS
