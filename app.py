@@ -500,14 +500,29 @@ fig.update_layout(
     showlegend=False
 )
 
+equity_min = equity.min()
+equity_max = equity.max()
+
+margem = (equity_max - equity_min) * 0.05
+
 fig.update_yaxes(
     title_text="Equity",
+    range=[
+        equity_min - margem,
+        equity_max + margem
+    ],
+    tickformat=",.0f",
     row=1,
     col=1
 )
 
 fig.update_yaxes(
     title_text="Drawdown %",
+    range=[
+        drawdown.min() * 100 * 1.10,
+        0
+    ],
+    tickformat=".1f",
     row=2,
     col=1
 )
