@@ -504,8 +504,9 @@ fig.update_layout(
 fig.update_yaxes(
     title_text="Unidades",
     range=[
-        equity_min - margem_equity,
-        equity_max_plot + margem_equity],
+        equity.min() - ((equity.max() - equity.min()) * 0.10),
+        equity.max() + ((equity.max() - equity.min()) * 0.10)
+    ],
     row=1,
     col=1
 )
