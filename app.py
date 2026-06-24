@@ -501,11 +501,19 @@ fig.update_layout(
 # EIXOS
 # ===============================
 
-equity_min = equity.min()
-equity_max = equity.max()
+equity_min = float(equity.min())
+equity_max = float(equity.max())
 
-folga_superior = (equity_max - equity_min) * 0.15
-folga_inferior = (equity_max - equity_min) * 0.03
+range_equity = equity_max - equity_min
+
+folga_superior = range_equity * 0.15
+folga_inferior = range_equity * 0.05
+
+if folga_superior < 10:
+    folga_superior = 10
+
+if folga_inferior < 5:
+    folga_inferior = 5
 
 fig.update_yaxes(
     title_text="Unidades",
@@ -527,9 +535,15 @@ fig.update_yaxes(
     col=1
 )
 
+max_x = len(equity)
+
 fig.update_xaxes(
     title_text="Trades",
-    showgrid=False
+    showgrid=False,
+    range=[
+        0,
+        max_x * 1.10
+    ]
 )
 
 # ===============================
