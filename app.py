@@ -501,11 +501,17 @@ fig.update_layout(
 # EIXOS
 # ===============================
 
+equity_min = equity.min()
+equity_max = equity.max()
+
+folga_superior = (equity_max - equity_min) * 0.15
+folga_inferior = (equity_max - equity_min) * 0.03
+
 fig.update_yaxes(
     title_text="Unidades",
     range=[
-        equity.min() - ((equity.max() - equity.min()) * 0.10),
-        equity.max() + ((equity.max() - equity.min()) * 0.10)
+        equity_min - folga_inferior,
+        equity_max + folga_superior
     ],
     row=1,
     col=1
