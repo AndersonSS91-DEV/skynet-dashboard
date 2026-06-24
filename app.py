@@ -186,7 +186,7 @@ stake = Celeste * 0.25
 # CURVA
 # ===============================
 
-capital_inicial = 100
+capital_inicial = 1000
 
 equity = (
     capital_inicial +
@@ -227,19 +227,6 @@ winrate = (
     retornos_calc > 0
 ).mean()
 
-# ==================================
-# AWAY % (REDS)
-# ==================================
-
-reds = (retornos_calc < 0).sum()
-
-away_red_pct = (
-    reds / volume
-    if volume > 0 else 0
-)
-
-home_not_lose = 1 - away_red_pct
-
 prob_5_losses = (
     (1 - winrate) ** 5
 )
@@ -252,13 +239,13 @@ ulcer = np.sqrt(
 # RISCO DE RUÍNA
 # ===============================
 
-simulacoes_ruina = 100
+simulacoes_ruina = 1000
 
 ruinas = 0
 
 # capital inicial evita explosão
 # do drawdown no começo da curva
-capital_inicial = 12000
+capital_inicial = 6000
 
 for _ in range(simulacoes_ruina):
 
@@ -376,28 +363,12 @@ st.markdown(
     '<div class="titulo-principal">📊 Validação do Método</div>',
     unsafe_allow_html=True
 )
-st.markdown("""
-<style>
-
-[data-testid="metric-container"]{
-    background:#111827;
-    border:1px solid #1F2937;
-    padding:12px;
-    border-radius:14px;
-}
-
-[data-testid="metric-container"]:hover{
-    border:1px solid #00FF88;
-}
-
-</style>
-""", unsafe_allow_html=True)
 
 # ===============================
 # CARDS
 # ===============================
 
-c1, c2, c3, c4, c5, c6, c7, c8 = st.columns(8)
+c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
 
 c1.metric(
     "Yield Médio",
@@ -434,12 +405,6 @@ c7.metric(
     f"{odd_media:.2f}"
 )
 
-c8.metric(
-    "Controle(-)%",
-    f"{away_red_pct*100:.2f}%"
-)
-
-
 # ===============================
 # GRÁFICOS
 # ===============================
@@ -447,90 +412,111 @@ c8.metric(
 from plotly.subplots import make_subplots
 
 # ===============================
-# GRÁFICO
+# GRÁFICO ÚNICO
 # ===============================
 
 st.subheader("📈 Equity + Drawdown")
-
-from plotly.subplots import make_subplots
 
 fig = make_subplots(
     rows=2,
     cols=1,
     shared_xaxes=True,
-    vertical_spacing=0.05,
-    row_heights=[0.7, 0.3]
+    vertical_spacing=0.03,
+    row_heights=[0.75, 0.25]
 )
 
-# Equity
+# ===============================
+# EQUITY
+# ===============================
+
 fig.add_trace(
+
     go.Scatter(
         y=equity,
         mode="lines",
-        name="Equity",
         line=dict(
-            color="#38bdf8",
-            width=3
-        )
+            width=3,
+            color="#38bdf8"
+        ),
+        name="Equity"
     ),
+
     row=1,
     col=1
 )
 
-# Drawdown
+# ===============================
+# DRAWDOWN
+# ===============================
+
 fig.add_trace(
+
     go.Scatter(
         y=drawdown * 100,
         mode="lines",
         fill="tozeroy",
-        fillcolor="rgba(250,204,21,0.20)",
         line=dict(
-            color="#facc15",
-            width=2
+            width=2,
+            color="#facc15"
         ),
-        name="Drawdown"
+        name="Drawdown %"
     ),
+
     row=2,
     col=1
 )
 
+# ===============================
+# LAYOUT
+# ===============================
+
 fig.update_layout(
+
     template="plotly_dark",
+
     height=700,
+
+    margin=dict(
+        l=20,
+        r=20,
+        t=40,
+        b=20
+    ),
+
+    hovermode="x unified",
+
     showlegend=False
 )
 
-equity_min = equity.min()
-equity_max = equity.max()
-
-margem = (equity_max - equity_min) * 0.05
+# ===============================
+# EIXOS
+# ===============================
 
 fig.update_yaxes(
     title_text="Equity",
-    range=[
-        equity_min - margem,
-        equity_max + margem
-    ],
-    tickformat=",.0f",
     row=1,
     col=1
 )
 
 fig.update_yaxes(
-    title_text="Drawdown %",
-    range=[
-        drawdown.min() * 100 * 1.10,
-        0
-    ],
-    tickformat=".1f",
+    title_text="DD %",
     row=2,
     col=1
 )
+
+fig.update_xaxes(
+    showgrid=False
+)
+
+# ===============================
+# PLOT
+# ===============================
 
 st.plotly_chart(
     fig,
     use_container_width=True
 )
+
 # ===============================
 # ESTATÍSTICAS
 # ===============================
@@ -571,15 +557,7 @@ with col1:
     st.markdown(
         f"**Profit Factor:** {profit_factor:.2f}"
     )
-    
-    st.markdown(
-        f"**Controle(-)%:** {away_red_pct*100:.2f}%"
-    )
-    
-    st.markdown(
-        f"**Home Não Perde:** {home_not_lose*100:.2f}%"
-    )
-    
+
     st.markdown(
         f"**Ulcer Index:** {ulcer:.2f}"
     )
@@ -644,15 +622,6 @@ with col2:
     else:
         st.warning("Profit Factor Baixo")
 
-    if away_red_pct < 0.13:
-        st.success("Controle(-)% Excelente")
-    elif away_red_pct < 0.15:
-        st.info("Controle(-)% Saudável")
-    elif away_red_pct < 0.17:
-        st.warning("Controle(-)% Atenção")
-    else:
-        st.error("Controle(-)% Crítico")
-        
     if ulcer < 3:
         st.success("Ulcer Baixo — Saudável")
     elif ulcer < 5:
