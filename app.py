@@ -186,22 +186,24 @@ stake = Celeste * 0.25
 # CURVA
 # ===============================
 
-capital_inicial = 1000
+# Equity real acumulada
+equity = retornos_calc.cumsum()
 
-equity = (
-    capital_inicial +
-    retornos_calc.cumsum()
-)
-
+# Topo histórico
 equity_max = equity.cummax()
 
-equity_max[equity_max == 0] = 1e-9
+# Evita divisão por zero
+equity_max = equity_max.replace(0, np.nan)
 
+# Drawdown %
 drawdown = (
-    (equity - equity_max) /
-    equity_max
+    (equity - equity_max)
+    / equity_max
 )
 
+drawdown = drawdown.fillna(0)
+
+# Max DD
 max_dd = drawdown.min()
 
 # ===============================
@@ -411,10 +413,6 @@ c7.metric(
 
 from plotly.subplots import make_subplots
 
-# ===============================
-# GRÁFICO ÚNICO
-# ===============================
-
 st.subheader("📈 Equity + Drawdown")
 
 fig = make_subplots(
@@ -432,13 +430,14 @@ fig = make_subplots(
 fig.add_trace(
 
     go.Scatter(
+        x=list(range(len(equity))),
         y=equity,
         mode="lines",
+        name="Equity",
         line=dict(
-            width=3,
-            color="#38bdf8"
-        ),
-        name="Equity"
+            color="#38bdf8",
+            width=3
+        )
     ),
 
     row=1,
@@ -452,14 +451,15 @@ fig.add_trace(
 fig.add_trace(
 
     go.Scatter(
+        x=list(range(len(drawdown))),
         y=drawdown * 100,
         mode="lines",
         fill="tozeroy",
+        name="Drawdown %",
         line=dict(
-            width=2,
-            color="#facc15"
-        ),
-        name="Drawdown %"
+            color="#facc15",
+            width=2
+        )
     ),
 
     row=2,
@@ -476,16 +476,16 @@ fig.update_layout(
 
     height=700,
 
+    hovermode="x unified",
+
+    showlegend=False,
+
     margin=dict(
         l=20,
         r=20,
-        t=40,
+        t=20,
         b=20
-    ),
-
-    hovermode="x unified",
-
-    showlegend=False
+    )
 )
 
 # ===============================
@@ -493,7 +493,7 @@ fig.update_layout(
 # ===============================
 
 fig.update_yaxes(
-    title_text="Equity",
+    title_text="Unidades",
     row=1,
     col=1
 )
@@ -505,6 +505,7 @@ fig.update_yaxes(
 )
 
 fig.update_xaxes(
+    title_text="Trades",
     showgrid=False
 )
 
