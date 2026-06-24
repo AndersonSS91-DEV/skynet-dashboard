@@ -187,7 +187,9 @@ stake = Celeste * 0.25
 # ===============================
 
 # Equity real acumulada
-equity = retornos_calc.cumsum()
+BANCA_INICIAL = 20
+
+equity = (BANCA_INICIAL + retornos_calc.cumsum())
 
 # Topo histórico
 equity_max = equity.cummax()
@@ -205,6 +207,13 @@ drawdown = drawdown.fillna(0)
 
 # Max DD
 max_dd = drawdown.min()
+
+dd_min = drawdown.min() * 100
+
+if dd_min > -5:
+    dd_min = -5
+
+dd_limite = dd_min * 1.10
 
 # ===============================
 # MÉTRICAS
@@ -494,12 +503,19 @@ fig.update_layout(
 
 fig.update_yaxes(
     title_text="Unidades",
+    range=[
+        equity_min - margem_equity,
+        equity_max_plot + margem_equity],
     row=1,
     col=1
 )
 
 fig.update_yaxes(
     title_text="DD %",
+    range=[
+        dd_limite,
+        1
+    ],
     row=2,
     col=1
 )
@@ -518,6 +534,25 @@ st.plotly_chart(
     use_container_width=True
 )
 
+max_x = len(equity)
+
+fig.update_xaxes(
+    range=[
+        0,
+        max_x * 1.10
+    ],
+    row=1,
+    col=1
+)
+
+fig.update_xaxes(
+    range=[
+        0,
+        max_x * 1.10
+    ],
+    row=2,
+    col=1
+)
 # ===============================
 # ESTATÍSTICAS
 # ===============================
