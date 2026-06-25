@@ -186,34 +186,23 @@ stake = Celeste * 0.25
 # CURVA
 # ===============================
 
-# Equity real acumulada
-BANCA_INICIAL = 20
+capital_inicial = 100
 
-equity = (BANCA_INICIAL + retornos_calc.cumsum())
-
-# Topo histórico
-equity_max = equity.cummax()
-
-# Evita divisão por zero
-equity_max = equity_max.replace(0, np.nan)
-
-# Drawdown %
-drawdown = (
-    (equity - equity_max)
-    / equity_max
+equity = (
+    capital_inicial +
+    retornos_calc.cumsum()
 )
 
-drawdown = drawdown.fillna(0)
+equity_max = equity.cummax()
 
-# Max DD
+equity_max[equity_max == 0] = 1e-9
+
+drawdown = (
+    (equity - equity_max) /
+    equity_max
+)
+
 max_dd = drawdown.min()
-
-dd_min = drawdown.min() * 100
-
-if dd_min > -5:
-    dd_min = -5
-
-dd_limite = dd_min * 1.10
 
 # ===============================
 # MÉTRICAS
@@ -238,6 +227,19 @@ winrate = (
     retornos_calc > 0
 ).mean()
 
+# ==================================
+# AWAY % (REDS)
+# ==================================
+
+reds = (retornos_calc < 0).sum()
+
+away_red_pct = (
+    reds / volume
+    if volume > 0 else 0
+)
+
+home_not_lose = 1 - away_red_pct
+
 prob_5_losses = (
     (1 - winrate) ** 5
 )
@@ -250,13 +252,13 @@ ulcer = np.sqrt(
 # RISCO DE RUÍNA
 # ===============================
 
-simulacoes_ruina = 1000
+simulacoes_ruina = 100
 
 ruinas = 0
 
 # capital inicial evita explosão
 # do drawdown no começo da curva
-capital_inicial = 6000
+capital_inicial = 12000
 
 for _ in range(simulacoes_ruina):
 
@@ -379,7 +381,7 @@ st.markdown(
 # CARDS
 # ===============================
 
-c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
+c1, c2, c3, c4, c5, c6, c7, c8 = st.columns(8)
 
 c1.metric(
     "Yield Médio",
@@ -416,11 +418,21 @@ c7.metric(
     f"{odd_media:.2f}"
 )
 
+c8.metric(
+    "Controle(-)%",
+    f"{away_red_pct*100:.2f}%"
+)
+
+
 # ===============================
 # GRÁFICOS
 # ===============================
 
 from plotly.subplots import make_subplots
+
+# ===============================
+# GRÁFICO ÚNICO
+# ===============================
 
 st.subheader("📈 Equity + Drawdown")
 
@@ -439,14 +451,13 @@ fig = make_subplots(
 fig.add_trace(
 
     go.Scatter(
-        x=list(range(len(equity))),
         y=equity,
         mode="lines",
-        name="Equity",
         line=dict(
-            color="#38bdf8",
-            width=3
-        )
+            width=3,
+            color="#38bdf8"
+        ),
+        name="Equity"
     ),
 
     row=1,
@@ -460,15 +471,14 @@ fig.add_trace(
 fig.add_trace(
 
     go.Scatter(
-        x=list(range(len(drawdown))),
         y=drawdown * 100,
         mode="lines",
         fill="tozeroy",
-        name="Drawdown %",
         line=dict(
-            color="#facc15",
-            width=2
-        )
+            width=2,
+            color="#facc15"
+        ),
+        name="Drawdown %"
     ),
 
     row=2,
@@ -485,58 +495,72 @@ fig.update_layout(
 
     height=700,
 
-    hovermode="x unified",
-
-    showlegend=False,
-
     margin=dict(
         l=20,
         r=20,
-        t=20,
+        t=40,
         b=20
-    )
+    ),
+
+    hovermode="x unified",
+
+    showlegend=False
 )
+
 
 # ===============================
 # EIXOS
 # ===============================
 
-equity_min = float(equity.min())
-equity_max = float(equity.max())
+equity_min = equity.min()
+equity_max = equity.max()
 
-folga = (equity_max - equity_min) * 0.15
+amplitude = equity_max - equity_min
 
-fig.update_layout(
+# margem visual
+margem = amplitude * 0.10
 
-    yaxis=dict(
-        title="Unidades",
-        range=[
-            equity_min - folga,
-            equity_max + folga
-        ]
-    ),
+# evita erro quando amplitude = 0
+if margem == 0:
+    margem = 10
 
-    yaxis2=dict(
-        title="DD %",
-        range=[
-            dd_limite,
-            1
-        ]
-    ),
+# escala automática
+if amplitude < 200:
+    dtick = 20
+elif amplitude < 500:
+    dtick = 50
+elif amplitude < 1000:
+    dtick = 100
+else:
+    dtick = 200
 
-    xaxis=dict(
-        range=[
-            0,
-            len(equity) * 1.10
-        ]
-    ),
+fig.update_yaxes(
+    title_text="Equity",
+    range=[
+        equity_min - margem,
+        equity_max + margem
+    ],
+    dtick=dtick,
+    row=1,
+    col=1
+)
 
-    xaxis2=dict(
-        range=[
-            0,
-            len(equity) * 1.10
-        ]
-    )
+# Drawdown
+dd_min = drawdown.min() * 100
+
+fig.update_yaxes(
+    title_text="DD %",
+    range=[
+        dd_min * 1.10,
+        0
+    ],
+    dtick=0.5,
+    row=2,
+    col=1
+)
+
+fig.update_xaxes(
+    showgrid=False
 )
 
 # ===============================
@@ -548,25 +572,6 @@ st.plotly_chart(
     use_container_width=True
 )
 
-max_x = len(equity)
-
-fig.update_xaxes(
-    range=[
-        0,
-        max_x * 1.10
-    ],
-    row=1,
-    col=1
-)
-
-fig.update_xaxes(
-    range=[
-        0,
-        max_x * 1.10
-    ],
-    row=2,
-    col=1
-)
 # ===============================
 # ESTATÍSTICAS
 # ===============================
@@ -607,7 +612,15 @@ with col1:
     st.markdown(
         f"**Profit Factor:** {profit_factor:.2f}"
     )
-
+    
+    st.markdown(
+        f"**Controle(-)%:** {away_red_pct*100:.2f}%"
+    )
+    
+    st.markdown(
+        f"**Home Não Perde:** {home_not_lose*100:.2f}%"
+    )
+    
     st.markdown(
         f"**Ulcer Index:** {ulcer:.2f}"
     )
@@ -672,6 +685,15 @@ with col2:
     else:
         st.warning("Profit Factor Baixo")
 
+    if away_red_pct < 0.13:
+        st.success("Controle(-)% Excelente")
+    elif away_red_pct < 0.15:
+        st.info("Controle(-)% Saudável")
+    elif away_red_pct < 0.17:
+        st.warning("Controle(-)% Atenção")
+    else:
+        st.error("Controle(-)% Crítico")
+        
     if ulcer < 3:
         st.success("Ulcer Baixo — Saudável")
     elif ulcer < 5:
