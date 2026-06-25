@@ -520,19 +520,22 @@ equity_max = equity.max()
 
 amplitude = equity_max - equity_min
 
-# margem visual
-margem = amplitude * 0.10
+# Apenas 5% de folga
+margem = amplitude * 0.05
 
-# evita erro quando amplitude = 0
-if margem == 0:
-    margem = 10
+if margem < 2:
+    margem = 2
 
-# escala automática
-if amplitude < 200:
+# Escala automática
+if amplitude <= 50:
+    dtick = 5
+elif amplitude <= 100:
+    dtick = 10
+elif amplitude <= 200:
     dtick = 20
-elif amplitude < 500:
+elif amplitude <= 500:
     dtick = 50
-elif amplitude < 1000:
+elif amplitude <= 1000:
     dtick = 100
 else:
     dtick = 200
@@ -540,8 +543,8 @@ else:
 fig.update_yaxes(
     title_text="Equity",
     range=[
-        equity_min - margem,
-        equity_max + margem
+        np.floor((equity_min - margem) / dtick) * dtick,
+        np.ceil((equity_max + margem) / dtick) * dtick
     ],
     dtick=dtick,
     row=1,
