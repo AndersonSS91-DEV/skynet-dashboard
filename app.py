@@ -245,14 +245,14 @@ prob_5_losses = (
 )
 
 ulcer = np.sqrt(
-    np.mean(drawdown ** 2)
+    np.mean((drawdown * 100) ** 2)
 )
 
 # ===============================
 # RISCO DE RUÍNA
 # ===============================
 
-simulacoes_ruina = 100
+simulacoes_ruina = 5000
 
 ruinas = 0
 
@@ -340,7 +340,7 @@ score = (
     sqn_score * 30 +
     robustez_score * 20 +
     dd_score * 20
-) * 100
+)
 
 # ===============================
 # ODD MÉDIA
@@ -474,17 +474,20 @@ fig.add_trace(
         y=drawdown * 100,
         mode="lines",
         fill="tozeroy",
+
+        fillcolor="rgba(250,204,21,0.35)",
+
         line=dict(
             width=2,
             color="#facc15"
         ),
+
         name="Drawdown %"
     ),
 
     row=2,
     col=1
 )
-
 # ===============================
 # LAYOUT
 # ===============================
@@ -752,7 +755,7 @@ st.plotly_chart(
 
 st.subheader("📈 Simulação Monte Carlo")
 
-simulacoes = 500
+simulacoes = 2000
 
 trades = len(retornos_calc)
 
