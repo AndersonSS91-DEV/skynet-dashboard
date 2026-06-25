@@ -792,3 +792,30 @@ st.plotly_chart(
     fig,
     use_container_width=True
 )
+
+
+# ===============================
+# SEMÁFORO
+# ===============================
+
+st.subheader("🚦 Semáforo do Método")
+
+if (
+    sqn > 2.5 and
+    profit_factor > 1.5 and
+    risk_ruin < 0.05
+):
+
+    st.success("🟢 MÉTODO PROFISSIONAL")
+
+elif (
+    sqn > 1.6 and
+    profit_factor > 1.2
+):
+
+    st.warning("🟡 MÉTODO OPERÁVEL")
+
+else:
+
+    st.error("🔴 MÉTODO INSTÁVEL")
+
